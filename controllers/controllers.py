@@ -21,6 +21,7 @@
 
 
 from odoo import http
+import werkzeug
 
 import logging
 # ~ _logger = logging.getLogger(__name__)
@@ -29,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 class ServiceMobile(http.Controller):
 
-    @http.route('/service/all/order/', auth='user')
+    @http.route('/service/all/order/', auth='user', website=True)
     def index_order(self, **kw):
         return http.request.render('service_mobile.index', {
             'root': '/service/all/order/',
@@ -42,6 +43,7 @@ class ServiceMobile(http.Controller):
         if post:
             logger.exception('kw %s' % post)
             order.note = post.get('note')
+            order.prio = post.get('prio')
             logger.exception('kw %s' % order.note)
 
             return self.index_order()
@@ -55,10 +57,37 @@ class ServiceMobile(http.Controller):
                               'input_attrs': {},
                           })
 
-    @http.route('/service/order/create', auth='user')
-    def create_order(self, order,**kw):
-        order.unlink()
-        self.index_order()
+    @http.route('/service/order/create', auth='user', website=True, methods=['GET', 'POST'])
+    def create_order(self, **post):
+        if post:
+            # ~ logger.exception('kw %s' % post)
+
+            new_order_params = {
+                'partner_id': int(post.get('partner_id')),
+
+            }
+
+            new_order = http.request.env['sale.order'].create(new_order_params)
+            new_order.set_template(int(post.get('sale_order_template_id')))
+
+            # ~ return self.index_order()
+            return werkzeug.utils.redirect('/service/all/order/', 302)
+        else:
+            return http.request.render('service_mobile.create_order', {
+                'root': '/service/order/create',
+                'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
+                'sale_order_template_ids': http.request.env['sale.order.template'].search([]),
+                # ~ 'order': order,
+                'help': {'name': 'This is helpstring for name'},
+                'validation': {'name': 'Warning'},
+                'input_attrs': {},
+            })
+
+
+    # @http.route('/service/order/create', auth='user')
+    # def create_order(self, order,**kw):
+    #     order.unlink()
+    #     self.index_order()
 
     @http.route('/service/<model("sale.order"):order>/order/delete', auth='user')
     def delete_order(self, order,**kw):
