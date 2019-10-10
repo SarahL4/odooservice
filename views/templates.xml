@@ -1,0 +1,45 @@
+<odoo>
+  <data>
+    <template id="index">
+      <ul>
+        <li t-foreach="order_ids" t-as="order">
+          <a t-att-href="'/service/%s/order' % order.id">
+            <t t-esc="order.display_name" />
+          </a>
+          <a t-att-href="'/service/%s/order/delete' % order.id">Delete</a>
+          <a t-att-href="'/service/%s/order/send' % order.id">Send</a>
+        </li>
+      </ul>
+    </template>
+    <template id="view_order">
+      <t t-call="website.layout">
+        <form id="info_form" t-att-action="'/service/%s/order' % order.id" method="post" class="form-horizontal mt32" enctype="multipart/form-data">
+          <input type="hidden" name="id" t-att-value="order.id" />
+          <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+          <div class="form-group">
+            <label class="col-md-3 col-sm-4 control-label" for="foobar1">Customer</label>
+            <div class="col-md-7 col-sm-8">
+              <p class="form-control-static" name="foobar1">
+                <t t-esc="order.partner_id.name" />
+              </p>
+            </div>
+          </div>
+          <div t-att-class="'form-group %s' %validation.get('note', '')">
+            <label class="col-md-3 col-sm-4 control-label" for="note">Note</label>
+            <div class="col-md-7 col-sm-8">
+              <input type="text" class="form-control" name="note" t-att-value="order.name" placeholder="Notes..." />
+              <small t-esc="help.get('note', '')" />
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="pull-right mb16">
+              <div class="">
+                <button id="submit_btn" class="btn btn-primary btn-lg">Save</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </t>
+    </template>
+  </data>
+</odoo>
