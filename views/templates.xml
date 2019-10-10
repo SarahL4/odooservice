@@ -1,16 +1,144 @@
 <odoo>
   <data>
+
+<!--    <template id="assets_frontend" inherit_id="web.assets_frontend">-->
+<!--      <xpath expr="." position="inside">-->
+<!--        <link rel="stylesheet" href="/service_mobile/static/src/css/site.css" />-->
+<!--      </xpath>-->
+<!--    </template>-->
+
+<!--        <template id="index">-->
+<!--      <t t-call="website.layout">-->
+<!--        <div class="table-wrapper">-->
+<!--          <div class="table-title">-->
+<!--            <div class="row">-->
+<!--              <div class="col-sm-6">-->
+<!--                <h2 class="d-inline mr-1">Orders</h2>-->
+<!--                <a t-att-href="'/service/order/create'" class="ml-1">-->
+<!--                  <h2 class="d-inline">Create New</h2>-->
+<!--                </a>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--          <table class="table table-striped table-hover">-->
+<!--            <thead>-->
+<!--              <tr>-->
+<!--                <th>#</th>-->
+<!--                <th>Order ID</th>-->
+<!--                <th>Customer</th>-->
+<!--                <th>Order date</th>-->
+<!--                <th>Status</th>-->
+<!--                <th>Total amount</th>-->
+<!--                <th>Action</th>-->
+<!--                <th>Prio</th>-->
+<!--              </tr>-->
+<!--            </thead>-->
+<!--            <tbody>-->
+<!--              <tr t-foreach="order_ids" t-as="order">-->
+<!--                <td>1</td>-->
+<!--                <td>-->
+<!--                  <a t-att-href="'/service/%s/order' % order.id">-->
+<!--                    <t t-esc="order.display_name" />-->
+<!--                  </a>-->
+<!--                </td>-->
+<!--                <td>-->
+<!--                  <t t-esc="order.partner_id.name" />-->
+<!--                </td>-->
+<!--                <td>-->
+<!--                  <t t-esc="order.date_order" />-->
+<!--                </td>-->
+<!--                <td>-->
+<!--                  <t t-if="order.state == 'sale'">-->
+<!--                    <span class="badge badge-success">-->
+<!--                      <t t-esc="order.state" />-->
+<!--                    </span>-->
+<!--                  </t>-->
+<!--                  <t t-elif="order.state == 'sent'">-->
+<!--                    <span class="badge badge-info">-->
+<!--                      <t t-esc="order.state" />-->
+<!--                    </span>-->
+<!--                  </t>-->
+<!--                  <t t-elif="order.state == 'cancel'">-->
+<!--                    <span class="badge badge-danger">-->
+<!--                      <t t-esc="order.state" />-->
+<!--                    </span>-->
+<!--                  </t>-->
+<!--                  <t t-elif="order.state == 'done'">-->
+<!--                    <span class="badge badge-secondary">-->
+<!--                      <t t-esc="order.state" />-->
+<!--                    </span>-->
+<!--                  </t>-->
+<!--                  <t t-else="">-->
+<!--                    <span class="badge badge-warning">-->
+<!--                      <t t-esc="order.state" />-->
+<!--                    </span>-->
+<!--                  </t>-->
+<!--                </td>-->
+<!--                <td>-->
+<!--                  <t t-esc="order.amount_total" />-->
+<!--                </td>-->
+<!--                <td>-->
+<!--                  <a t-att-href="'/service/%s/order/delete' % order.id">-->
+<!--                    <i class="fa fa-trash" />-->
+<!--                  </a>-->
+<!--                  |-->
+<!--                  <a t-att-href="'/service/%s/order/send' % order.id">-->
+<!--                    <i class="fa fa-paper-plane" />-->
+<!--                  </a>-->
+<!--                </td>-->
+<!--                <td>-->
+<!--                  <span>-->
+<!--                    <t t-esc="'True' if order.prio else 'False'" />-->
+<!--                  </span>-->
+<!--                </td>-->
+<!--              </tr>-->
+<!--            </tbody>-->
+<!--          </table>-->
+<!--        </div>-->
+<!--      </t>-->
+<!--    </template>-->
+
+
     <template id="index">
+
       <ul>
         <li t-foreach="order_ids" t-as="order">
           <a t-att-href="'/service/%s/order' % order.id">
-            <t t-esc="order.display_name" />
+            <t t-esc="order.id" />
+<t t-esc="' : ' + order.display_name" />
+<t t-esc="' : ' + order.partner_id.name" />
+<t t-esc="' : '"/>
+<t t-esc="order.amount_total" />
+<t t-esc="' : ' + order.state" />
+
           </a>
           <a t-att-href="'/service/%s/order/delete' % order.id">Delete</a>
           <a t-att-href="'/service/%s/order/send' % order.id">Send</a>
         </li>
       </ul>
     </template>
+
+<!--        <template id="index">-->
+<!--      <t t-call="website.layout">-->
+<!--        <a t-att-href="'/service/order/create'">Create new order</a>-->
+<!--        <ul>-->
+<!--          <li t-foreach="order_ids" t-as="order">-->
+<!--            <a t-att-href="'/service/%s/order' % order.id">-->
+<!--              <t t-esc="order.id" />-->
+<!--              <t t-esc="' : ' + order.display_name" />-->
+<!--              <t t-esc="' : ' + order.partner_id.name" />-->
+<!--              <t t-esc="' : '"/>-->
+<!--              <t t-esc="order.amount_total" />-->
+<!--              <t t-esc="' : ' + order.state" />-->
+<!--&lt;!&ndash;              <t t-esc="'prio' if order.prio else 'Ej prio'" />&ndash;&gt;-->
+<!--            </a>-->
+<!--            <a t-att-href="'/service/%s/order/delete' % order.id"> <span class="fa fa-trash"/>Delete</a>-->
+<!--            <a t-att-href="'/service/%s/order/send' % order.id"> <span class="fa fa-envelope"/>Send</a>-->
+<!--          </li>-->
+<!--        </ul>-->
+<!--      </t>-->
+<!--    </template>-->
+
     <template id="view_order">
       <t t-call="website.layout">
         <form id="info_form" t-att-action="'/service/%s/order' % order.id" method="post" class="form-horizontal mt32" enctype="multipart/form-data">
