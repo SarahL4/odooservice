@@ -107,6 +107,7 @@
             <t t-esc="order.id" />
             <t t-esc="' : ' + order.display_name" />
             <t t-esc="' : ' + order.partner_id.name" />
+            <t t-esc="'order.prio' if order.prio else 'Ej prio'" />
             <t t-esc="' : '"/>
             <t t-esc="order.amount_total" />
             <t t-esc="' : ' + order.state" />
@@ -155,7 +156,7 @@
           <div t-att-class="'form-group %s' %validation.get('note', '')">
             <label class="col-md-3 col-sm-4 control-label" for="note">Note</label>
             <div class="col-md-7 col-sm-8">
-              <input type="text" class="form-control" name="note" t-att-value="order.name" placeholder="Notes..." />
+              <input type="text" class="form-control" name="note" t-att-value="order.note if order.note else order.name" placeholder="Notes..." />
               <small t-esc="help.get('note', '')" />
             </div>
           </div>
