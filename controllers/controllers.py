@@ -42,7 +42,7 @@ class ServiceMobile(http.Controller):
         if post:
             logger.exception('kw %s' % post)
             order.note = post.get('note')
-            # order.prio = post.get('prio')
+            order.prio = post.get('prio')
             logger.exception('kw %s' % order.note)
 
             return self.index_order()

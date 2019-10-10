@@ -105,15 +105,15 @@
         <li t-foreach="order_ids" t-as="order">
           <a t-att-href="'/service/%s/order' % order.id">
             <t t-esc="order.id" />
-<t t-esc="' : ' + order.display_name" />
-<t t-esc="' : ' + order.partner_id.name" />
-<t t-esc="' : '"/>
-<t t-esc="order.amount_total" />
-<t t-esc="' : ' + order.state" />
+            <t t-esc="' : ' + order.display_name" />
+            <t t-esc="' : ' + order.partner_id.name" />
+            <t t-esc="' : '"/>
+            <t t-esc="order.amount_total" />
+            <t t-esc="' : ' + order.state" />
 
           </a>
-          <a t-att-href="'/service/%s/order/delete' % order.id">Delete</a>
-          <a t-att-href="'/service/%s/order/send' % order.id">Send</a>
+          <a t-att-href="'/service/%s/order/delete' % order.id"><span class="fa fa-trash"/>Delete</a>
+          <a t-att-href="'/service/%s/order/send' % order.id"><span class="fa fa-envelope"/>Send</a>
         </li>
       </ul>
     </template>
@@ -157,6 +157,13 @@
             <div class="col-md-7 col-sm-8">
               <input type="text" class="form-control" name="note" t-att-value="order.name" placeholder="Notes..." />
               <small t-esc="help.get('note', '')" />
+            </div>
+          </div>
+          <div t-att-class="'form-group %s' %validation.get('prio', '')">
+            <label class="col-md-3 col-sm-4 control-label" for="prio">Prio</label>
+            <div class="col-md-7 col-sm-8">
+              <input type="checkbox" class="form-control" name="prio" t-att-checked="order.prio"/>
+              <small t-esc="help.get('prio', '')" />
             </div>
           </div>
           <div class="col-md-12">
