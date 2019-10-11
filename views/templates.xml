@@ -34,65 +34,77 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr t-foreach="order_ids" t-as="order">
-                                <td>1</td>
-                                <td>
-                                    <a t-att-href="'/service/%s/order' % order.id">
-                                        <t t-esc="order.display_name"/>
-                                    </a>
-                                </td>
-                                <td>
-                                    <t t-esc="order.partner_id.name"/>
-                                </td>
-                                <td>
-                                    <t t-esc="order.date_order"/>
-                                </td>
-                                <td>
-                                    <t t-if="order.state == 'sale'">
-                                        <span class="badge badge-success">
-                                            <t t-esc="order.state"/>
-                                        </span>
-                                    </t>
-                                    <t t-elif="order.state == 'sent'">
-                                        <span class="badge badge-info">
-                                            <t t-esc="order.state"/>
-                                        </span>
-                                    </t>
-                                    <t t-elif="order.state == 'cancel'">
-                                        <span class="badge badge-danger">
-                                            <t t-esc="order.state"/>
-                                        </span>
-                                    </t>
-                                    <t t-elif="order.state == 'done'">
-                                        <span class="badge badge-secondary">
-                                            <t t-esc="order.state"/>
-                                        </span>
-                                    </t>
-                                    <t t-else="">
-                                        <span class="badge badge-warning">
-                                            <t t-esc="order.state"/>
-                                        </span>
-                                    </t>
-                                </td>
-                                <td>
-                                    <t t-esc="order.amount_total"/>
-                                </td>
-                                <td>
-                                    <a t-att-href="'/service/%s/order/delete' % order.id">
-                                        <i class="fa fa-trash"/>
-                                    </a>
-                                    |
-                                    <a t-att-href="'/service/%s/order/send' % order.id">
-                                        <i class="fa fa-paper-plane"/>
-                                    </a>
-                                </td>
 
-                                <td>
-                                    <span>
-                                        <t t-esc="'True' if order.prio else 'False'"/>
-                                    </span>
-                                </td>
+                            <tr t-if="order_state == 'cancel'">
+
+                                <span class="row alert alert-success">
+                                    Cancel successed!
+                                </span>
                             </tr>
+
+
+<!--                    <t t-set="i" t-value="1"/>-->
+              <tr t-foreach="order_ids" t-as="order">
+                <td>
+                    <t t-esc="order_index+1"/>
+                </td>
+                <td>
+                  <a t-att-href="'/service/%s/order' % order.id">
+                    <t t-esc="order.display_name" />
+                  </a>
+                </td>
+                <td>
+                  <t t-esc="order.partner_id.name" />
+                </td>
+                <td>
+                  <t t-esc="order.date_order" />
+                </td>
+                <td>
+                  <t t-if="order.state == 'sale'">
+                    <span class="badge badge-success">
+                      <t t-esc="order.state" />
+                    </span>
+                  </t>
+                  <t t-elif="order.state == 'sent'">
+                    <span class="badge badge-info">
+                      <t t-esc="order.state" />
+                    </span>
+                  </t>
+                  <t t-elif="order.state == 'cancel'">
+                    <span class="badge badge-danger">
+                      <t t-esc="order.state" />
+                    </span>
+                  </t>
+                  <t t-elif="order.state == 'done'">
+                    <span class="badge badge-secondary">
+                      <t t-esc="order.state" />
+                    </span>
+                  </t>
+                  <t t-else="">
+                    <span class="badge badge-warning">
+                      <t t-esc="order.state" />
+                    </span>
+                  </t>
+                </td>
+                <td>
+                  <t t-esc="order.amount_total" />
+                </td>
+                <td>
+                  <a t-att-href="'/service/%s/order/delete' % order.id">
+                    <i class="fa fa-trash" />
+                  </a>
+                  |
+                  <a t-att-href="'/service/%s/order/send' % order.id">
+                    <i class="fa fa-paper-plane" />
+                  </a>
+                </td>
+                <td>
+                  <span>
+                    <t t-esc="'True' if order.prio else 'False'" />
+                  </span>
+                </td>
+              </tr>
+
                         </tbody>
                     </table>
                 </div>
@@ -181,6 +193,20 @@
                     </div>
                 </form>
             </t>
+        </template>
+
+        <!--        VG UPPGIFT-->
+        <template id="index_public">
+            <ul>
+                <li t-foreach="order_ids" t-as="order">
+                    <t t-esc="order.id"/>
+                    <t t-esc="' : ' + order.display_name"/>
+                    <t t-esc="' : ' + order.partner_id.name"/>
+                    <t t-esc="' : '"/>
+                    <t t-esc="order.amount_total"/>
+                    <t t-esc="' : ' + order.state"/>
+                </li>
+            </ul>
         </template>
 
 

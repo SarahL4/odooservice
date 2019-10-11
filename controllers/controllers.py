@@ -88,16 +88,24 @@ class ServiceMobile(http.Controller):
     #     order.unlink()
     #     self.index_order()
 
+    # @http.route('/service/<model("sale.order"):order>/order/delete', auth='user', website=True)
+    # def delete_order(self, order, **kw):
+    #     try:
+    #         order.unlink()
+    #     except:
+    #         logger.warn("Error!")
+    #
+    #     return werkzeug.utils.redirect('/service/all/order/', 302)
+
     @http.route('/service/<model("sale.order"):order>/order/delete', auth='user', website=True)
     def delete_order(self, order, **kw):
-        try:
-            order.unlink()
-        except:
-            logger.warn("Error!")
+        return http.request.render('service_mobile.index', {
+            'root': '/service/all/order/',
+            'order_ids': http.request.env['sale.order'].search([]),
+            'order_state':'cancel'
 
-        return werkzeug.utils.redirect('/service/all/order/', 302)
+        })
 
-        # self.index_order()
 
     @http.route('/service/<model("sale.order"):order>/order/send', auth='user')
     def confirm_order(self, order, **kw):
@@ -109,6 +117,14 @@ class ServiceMobile(http.Controller):
         return werkzeug.utils.redirect('/service/all/order', 302)
         # order.send() # ?????????????
         # self.index_order()
+
+    # VG-uppgift
+    @http.route('/service/public/order', auth='none')
+    def index_order_pub(self, **kw):
+        return http.request.render('service_mobile.index_public', {
+            'root': '/service/public/order',
+            'order_ids': http.request.env['sale.order'].sudo().search([]),
+        })
 
 # --------------------------------------------
 
