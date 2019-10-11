@@ -24,6 +24,7 @@ from odoo import http
 import werkzeug
 
 import logging
+
 # ~ _logger = logging.getLogger(__name__)
 logger = logging.getLogger(__name__)
 
@@ -35,11 +36,11 @@ class ServiceMobile(http.Controller):
         return http.request.render('service_mobile.index', {
             'root': '/service/all/order/',
             'order_ids': http.request.env['sale.order'].search([]),
-            
+
         })
-        
-    @http.route('/service/<model("sale.order"):order>/order/', auth='user',website=True, methods=['GET','POST'])
-    def update_order(self, order,**post):
+
+    @http.route('/service/<model("sale.order"):order>/order/', auth='user', website=True, methods=['GET', 'POST'])
+    def update_order(self, order, **post):
         if post:
             logger.exception('kw %s' % post)
             order.note = post.get('note')
@@ -49,13 +50,13 @@ class ServiceMobile(http.Controller):
             return self.index_order()
         else:
             return http.request.render('service_mobile.view_order', {
-                              'root': '/service/%s/order/' % order.id,
-                              'partner_ids': http.request.env['res.partner'].search([('customer','=',True)]),
-                              'order': order,
-                              'help': {'name':'This is helpstring for name'},
-                               'validation': {'name':'Warning'},
-                              'input_attrs': {},
-                          })
+                'root': '/service/%s/order/' % order.id,
+                'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
+                'order': order,
+                'help': {'name': 'This is helpstring for name'},
+                'validation': {'name': 'Warning'},
+                'input_attrs': {},
+            })
 
     @http.route('/service/order/create', auth='user', website=True, methods=['GET', 'POST'])
     def create_order(self, **post):
@@ -64,7 +65,6 @@ class ServiceMobile(http.Controller):
 
             new_order_params = {
                 'partner_id': int(post.get('partner_id')),
-
             }
 
             new_order = http.request.env['sale.order'].create(new_order_params)
@@ -83,48 +83,59 @@ class ServiceMobile(http.Controller):
                 'input_attrs': {},
             })
 
-
     # @http.route('/service/order/create', auth='user')
     # def create_order(self, order,**kw):
     #     order.unlink()
     #     self.index_order()
 
-    @http.route('/service/<model("sale.order"):order>/order/delete', auth='user')
-    def delete_order(self, order,**kw):
-        order.unlink()
-        self.index_order()
+    @http.route('/service/<model("sale.order"):order>/order/delete', auth='user', website=True)
+    def delete_order(self, order, **kw):
+        try:
+            order.unlink()
+        except:
+            logger.warn("Error!")
+
+        return werkzeug.utils.redirect('/service/all/order/', 302)
+
+        # self.index_order()
 
     @http.route('/service/<model("sale.order"):order>/order/send', auth='user')
-    def confirm_order(self, order,**kw):
-        order.send() # ?????????????
-        self.index_order()
+    def confirm_order(self, order, **kw):
+        if order.state != 'cancel':
+            order.send_offer()
+            if order.state == 'draft':
+                order.state = 'sent'
 
-#--------------------------------------------
+        return werkzeug.utils.redirect('/service/all/order', 302)
+        # order.send() # ?????????????
+        # self.index_order()
 
-    @http.route('/service/all/project/', auth='user')
-    def index_project(self, **kw):
-        return http.request.render('service_mobile.index_project', {
-            'root': '/service/%s/project/' % order.id,
-            'order_ids': http.request.env['sale.order'].search([]),
-        })
-        
-    @http.route('/service/<model("project.project"):project>/project/', auth='user')
-    def update_project(self, project,**kw):
-        
-        # if post xxx
-        
-        return http.request.render('service_mobile.view_project', {
-            'root': '/service/%s/project/' % project.id,
-            'product_ids': http.request.env['product.product'].search([('is_sale','=',True)]),
-            'order': order,
-        })
+# --------------------------------------------
 
-    @http.route('/service/<model("project.project"):project>/project/delete', auth='user')
-    def delete_project(self, project,**kw):
-        project.unlink()
-        self.index_project()
-
-    @http.route('/service/<model("project.project"):project>/project/invoice', auth='user')
-    def invoice_propject(self, order,**kw):
-        project.invoice() # ?????????????
-        self.index_project()
+# @http.route('/service/all/project/', auth='user')
+# def index_project(self, **kw):
+#     return http.request.render('service_mobile.index_project', {
+#         'root': '/service/%s/project/' % order.id,
+#         'order_ids': http.request.env['sale.order'].search([]),
+#     })
+#
+# @http.route('/service/<model("project.project"):project>/project/', auth='user')
+# def update_project(self, project,**kw):
+#
+#     # if post xxx
+#
+#     return http.request.render('service_mobile.view_project', {
+#         'root': '/service/%s/project/' % project.id,
+#         'product_ids': http.request.env['product.product'].search([('is_sale','=',True)]),
+#         'order': order,
+#     })
+#
+# @http.route('/service/<model("project.project"):project>/project/delete', auth='user')
+# def delete_project(self, project,**kw):
+#     project.unlink()
+#     self.index_project()
+#
+# @http.route('/service/<model("project.project"):project>/project/invoice', auth='user')
+# def invoice_propject(self, order,**kw):
+#     project.invoice() # ?????????????
+#     self.index_project()
