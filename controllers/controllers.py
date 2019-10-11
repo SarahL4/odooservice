@@ -95,6 +95,8 @@ class ServiceMobile(http.Controller):
             })
         else:
             order.unlink()
+            order_state: 'cancel'
+            order.state = 'cancel'
             return werkzeug.utils.redirect('/service/all/order/', 302)
 
     @http.route('/service/<model("sale.order"):order>/order/send', auth='user')
