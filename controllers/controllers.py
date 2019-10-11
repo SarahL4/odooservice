@@ -61,8 +61,6 @@ class ServiceMobile(http.Controller):
     @http.route('/service/order/create', auth='user', website=True, methods=['GET', 'POST'])
     def create_order(self, **post):
         if post:
-            # ~ logger.exception('kw %s' % post)
-
             new_order_params = {
                 'partner_id': int(post.get('partner_id')),
             }
@@ -83,29 +81,21 @@ class ServiceMobile(http.Controller):
                 'input_attrs': {},
             })
 
-    # @http.route('/service/order/create', auth='user')
-    # def create_order(self, order,**kw):
-    #     order.unlink()
-    #     self.index_order()
-
-    # @http.route('/service/<model("sale.order"):order>/order/delete', auth='user', website=True)
-    # def delete_order(self, order, **kw):
-    #     try:
-    #         order.unlink()
-    #     except:
-    #         logger.warn("Error!")
-    #
-    #     return werkzeug.utils.redirect('/service/all/order/', 302)
-
     @http.route('/service/<model("sale.order"):order>/order/delete', auth='user', website=True)
     def delete_order(self, order, **kw):
-        return http.request.render('service_mobile.index', {
-            'root': '/service/all/order/',
-            'order_ids': http.request.env['sale.order'].search([]),
-            'order_state':'cancel'
+        if order.state != 'cancel':
+            order_state: 'cancel'
+            order.state = 'cancel'
 
-        })
-
+            return http.request.render('service_mobile.index', {
+                'root': '/service/all/order/',
+                'order_ids': http.request.env['sale.order'].search([]),
+                'order_state': 'cancel',
+                'order.state': order.state
+            })
+        else:
+            order.unlink()
+            return werkzeug.utils.redirect('/service/all/order/', 302)
 
     @http.route('/service/<model("sale.order"):order>/order/send', auth='user')
     def confirm_order(self, order, **kw):
@@ -115,8 +105,6 @@ class ServiceMobile(http.Controller):
                 order.state = 'sent'
 
         return werkzeug.utils.redirect('/service/all/order', 302)
-        # order.send() # ?????????????
-        # self.index_order()
 
     # VG-uppgift
     @http.route('/service/public/order', auth='none')
