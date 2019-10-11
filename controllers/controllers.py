@@ -47,7 +47,7 @@ class ServiceMobile(http.Controller):
             order.prio = post.get('prio')
             logger.exception('kw %s' % order.note)
 
-            return self.index_order()
+            return werkzeug.utils.redirect('/service/all/order/', 302)
         else:
             return http.request.render('service_mobile.view_order', {
                 'root': '/service/%s/order/' % order.id,
