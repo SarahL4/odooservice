@@ -41,7 +41,7 @@
                         <tbody>
                             <!-- Message after order deleted successful-->
                             <tr t-if="order_state == 'cancel'">
-                                <span class="row alert alert-success">
+                                <span  class="row alert alert-success">
                                     Order deleted successful!
                                 </span>
                             </tr>
