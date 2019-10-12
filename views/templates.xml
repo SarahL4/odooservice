@@ -209,6 +209,19 @@
             </ul>
         </template>
 
+        <!--F4 Project-->
+        <template id="index_project">
+            <ul>
+                <li t-foreach="project_ids" t-as="project">
+                    <t t-esc="project.id"/>
+                    <t t-esc="' : ' + project.display_name"/>
+                    <t t-esc="' : ' + project.user_id.name"/>
+                    <t t-esc="' : '"/>
+                    <t t-esc="project.partner_id.name"/>
+                </li>
+            </ul>
+        </template>
+
 
     </data>
 </odoo>

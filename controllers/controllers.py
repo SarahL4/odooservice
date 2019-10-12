@@ -117,14 +117,21 @@ class ServiceMobile(http.Controller):
         })
 
 # --------------------------------------------
+#     @http.route('/service/all/order/', auth='user', website=True)
+#     def index_order(self, **kw):
+#         return http.request.render('service_mobile.index', {
+#             'root': '/service/all/order/',
+#             'order_ids': http.request.env['sale.order'].search([]),
+#         })
 
-# @http.route('/service/all/project/', auth='user')
-# def index_project(self, **kw):
-#     return http.request.render('service_mobile.index_project', {
-#         'root': '/service/%s/project/' % order.id,
-#         'order_ids': http.request.env['sale.order'].search([]),
-#     })
-#
+    @http.route('/service/all/project', auth='user', website=True)
+    def index_project(self, **kw):
+        return http.request.render('service_mobile.index_project', {
+            'root': '/service/all/project',
+            'order_ids': http.request.env['sale.order'].search([]),
+            'project_ids': http.request.env['project.project'].search([]),
+        })
+
 # @http.route('/service/<model("project.project"):project>/project/', auth='user')
 # def update_project(self, project,**kw):
 #
