@@ -52,8 +52,10 @@ class ServiceMobile(http.Controller):
             return http.request.render('service_mobile.view_order', {
                 'root': '/service/%s/order/' % order.id,
                 'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
+                # 'sale_order_line_ids': http.request.env['sale.order.line'].search([]),
+                'sale_order_line_ids': http.request.env['sale.order.line'].search([('product_uom', '=', 'Timme(ar)')]),
                 'order': order,
-                'help': {'name': 'This is helpstring for name'},
+                'help': {'name': 'This is help string for name'},
                 'validation': {'name': 'Warning'},
                 'input_attrs': {},
             })

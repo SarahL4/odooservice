@@ -117,9 +117,18 @@
         <template id="view_order">
             <t t-call="website.layout">
                 <form id="info_form" t-att-action="'/service/%s/order' % order.id" method="post"
-                      class="form-horizontal mt32" enctype="multipart/form-data">
+                      class="form-horizontal mt32 mx-3" enctype="multipart/form-data" style="with:80%;margin:auto">
                     <input type="hidden" name="id" t-att-value="order.id"/>
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                    <div class="form-group">
+                        <label class="col-md-3 col-sm-4 control-label" for="orderID">Order Id</label>
+                        <div class="col-md-7 col-sm-8">
+                            <p class="form-control-static" name="orderID">
+                                <t t-esc="order.name"/>
+                            </p>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label class="col-md-3 col-sm-4 control-label" for="foobar1">Customer</label>
                         <div class="col-md-7 col-sm-8">
@@ -129,9 +138,9 @@
                         </div>
                     </div>
                     <div t-att-class="'form-group %s' %validation.get('note', '')">
-                        <label class="col-md-3 col-sm-4 control-label" for="note">Note</label>
 
                         <div class="col-md-7 col-sm-8">
+                        <label class="col-md-3 col-sm-4 control-label" for="note">Note</label>
                             <input type="text" class="form-control" name="note"
                                    t-att-value="order.note if order.note else order.name" placeholder="Notes..."/>
                             <small t-esc="help.get('note', '')"/>
@@ -145,6 +154,51 @@
                             
                         </div>
                     </div>
+
+<!--                    <div class="form-group">-->
+<!--                            <label class="col-md-3 col-sm-4 control-label" for="project_name">Product: </label>-->
+<!--                            <div class="col-md-7 col-sm-8">-->
+
+<!--                                    <p class="form-control-static" name="project_name">-->
+<!--                                    <t t-esc="project.display_name"/>-->
+<!--                                </p>-->
+
+
+
+<!--                            </div>-->
+<!--                        </div>-->
+                        <div class="form-group col-md-7 col-sm-8">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Product</th>
+                                <th>Måttenhet</th>
+                                <th>Beställa antal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="sale_order_line_ids" t-as="orderline">
+                                <td>
+                                    <t t-esc="orderline_index+1"/>
+                                </td>
+                                <td>
+                                    <t t-esc="orderline.product_id.name"/>
+                                </td>
+                                <td>
+                                    <t t-esc="orderline.product_uom.name"/>
+                                </td>
+                                <td>
+                                    <t t-esc="orderline.product_uom_qty"/>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+</div>
+
+
+
 
                     <div class="col-md-12">
                         <div class="pull-right mb16">
