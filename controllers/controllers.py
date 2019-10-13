@@ -53,15 +53,13 @@ class ServiceMobile(http.Controller):
 
             return werkzeug.utils.redirect('/service/all/order/', 302)
         else:
-            sale_order_line = http.request.env['sale.order.line'].search([('product_uom.name', '=', 'Timme(ar)')])
-            sale_order_line_ids = sale_order_line.search([('order_id', '=', order.id)])
+            # sale_order_line_ids = sale_order_line.search([('order_id', '=', order.id),('product_uom.category_id.name', '=', 'Arbetstid')])
+            sale_order_line_ids = order.order_line.search([('order_id', '=', order.id),('product_uom.name', '=', 'Timme(ar)')])
             return http.request.render('service_mobile.view_order', {
                 'root': '/service/%s/order/' % order.id,
                 'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
-                # 'sale_order_line_ids': http.request.env['sale.order.line'].search([]),
                 'order': order,
                 'sale_order_line_ids': sale_order_line_ids,
-                # 'sale_order_line_ids': http.request.env['sale.order.line'].search([('product_uom', '=', 'Timme(ar)')]),
                 'help': {'name': 'This is help string for name'},
                 'validation': {'name': 'Warning'},
                 'input_attrs': {},
@@ -85,7 +83,7 @@ class ServiceMobile(http.Controller):
                 'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
                 'sale_order_template_ids': http.request.env['sale.order.template'].search([]),
                 # ~ 'order': order,
-                'help': {'name': 'This is helpstring for name'},
+                'help': {'name': 'This is help string for name'},
                 'validation': {'name': 'Warning'},
                 'input_attrs': {},
             })
