@@ -135,12 +135,14 @@
                             <input type="text" class="form-control" name="note"
                                    t-att-value="order.note if order.note else order.name" placeholder="Notes..."/>
                             <small t-esc="help.get('note', '')"/>
+
                             <p class="font-weight-bold mt-3">Priority</p>
                             <label class="switch switch-left-right mt--3">
                                 <input class="switch-input" type="checkbox" name="prio" t-att-checked="order.prio"/>
                                 <span class="switch-label" data-on="On" data-off="Off"/>
                                 <span class="switch-handle"/>
                             </label>
+                            
                         </div>
                     </div>
 
@@ -211,19 +213,7 @@
             </ul>
         </template>
 
-        <!--F4 Project-->
-        <!--        <template id="index_project">-->
-        <!--            <ul>-->
-        <!--                <li t-foreach="project_ids" t-as="project">-->
-        <!--                    <t t-esc="project.id"/>-->
-        <!--                    <t t-esc="' : ' + project.display_name"/>-->
-        <!--                    <t t-esc="' : ' + project.user_id.name"/>-->
-        <!--                    <t t-esc="' : '"/>-->
-        <!--                    <t t-esc="project.partner_id.name"/>-->
-        <!--                </li>-->
-        <!--            </ul>-->
-        <!--        </template>-->
-
+        <!-- F4 Show list of projects-->
         <template id="index_project">
             <t t-call="website.layout">
                 <div class="table-wrapper">
@@ -257,12 +247,6 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Message after order deleted successful-->
-                            <!--                            <tr t-if="order_state == 'cancel'">-->
-                            <!--                                <span  class="row alert alert-success">-->
-                            <!--                                    Order deleted successful!-->
-                            <!--                                </span>-->
-                            <!--                            </tr>-->
 
                             <tr t-foreach="project_ids" t-as="project">
                                 <td>
@@ -332,6 +316,7 @@
             </t>
         </template>
 
+        <!-- update project-->
         <template id="view_project">
             <t t-call="website.layout">
                 <form id="info_form" t-att-action="'/service/%s/project' % project.id" method="post"
@@ -339,35 +324,17 @@
                     <input type="hidden" name="id" t-att-value="project.id"/>
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
 
- <div t-att-class="'form-group %s' %validation.get('project_project', '')">
-                    <div class="form-group">
-                        <label class="col-md-3 col-sm-4 control-label" for="project_name">Project</label>
-                        <div class="col-md-7 col-sm-8">
-                            <p class="form-control-static" name="project_name">
-                                <t t-esc="project.display_name"/>
-                            </p>
+                    <div t-att-class="'form-group %s' %validation.get('project_project', '')">
+                        <div class="form-group">
+                            <label class="col-md-3 col-sm-4 control-label" for="project_name">Project</label>
+                            <div class="col-md-7 col-sm-8">
+                                <p class="form-control-static" name="project_name">
+                                    <t t-esc="project.display_name"/>
+                                </p>
+                            </div>
                         </div>
-                    </div>
 
-<!--                   <div class="form-group">-->
-<!--                        <label class="col-md-3 col-sm-4 control-label" for="project_name">Project Name</label>-->
-<!--                        <div class="col-md-7 col-sm-8">-->
-<!--                            <p class="form-control-static" name="project_name">-->
-<!--                                <t t-esc="project.name"/>-->
-<!--                            </p>-->
-<!--                        </div>-->
-<!--                    </div>-->
-
-<!--                    <div class="form-group">-->
-<!--                        <label class="col-md-3 col-sm-4 control-label" for="foobar1">Customer</label>-->
-<!--                        <div class="col-md-7 col-sm-8">-->
-<!--                            <p class="form-control-static" name="foobar1">-->
-<!--                                <t t-esc="project.partner_id.name"/>-->
-<!--                            </p>-->
-<!--                        </div>-->
-<!--                    </div>-->
-
-                    <div class="form-group">
+                        <div class="form-group">
                             <label class="col-md-3 col-sm-4 control-label" for="partner_id">Customer:</label>
                             <div class="col-md-7 col-sm-8">
                                 <select class="form-control" name="partner_id">
@@ -378,17 +345,7 @@
                             </div>
                         </div>
 
-
-<!--                        <label class="col-md-3 col-sm-4 control-label" for="user_id">Project leader/Saler</label>-->
-
-<!--                        <div class="col-md-7 col-sm-8">-->
-<!--                            <input type="text" class="form-control" name="user_id" t-att-value="project.user_id.name"-->
-<!--                                   placeholder="Project leader..."/>-->
-<!--                            <small t-esc="help.get('user_id', '')"/>-->
-<!--                        </div>-->
-
-
-                    <div class="col-md-7 col-sm-8">
+                        <div class="col-md-7 col-sm-8">
                             <label class="control-label" for="user_id">Project leader/Saler</label>
                             <div class="">
                                 <select class="form-control" name="user_id">
@@ -398,7 +355,7 @@
                                 </select>
                             </div>
                         </div>
-</div>
+                    </div>
                     <div class="col-md-12">
                         <div class="pull-right mb16">
                             <div class="">
@@ -423,7 +380,7 @@
                     <div t-att-class="'form-group %s' %validation.get('project_project', '')">
 
                         <div class="col-md-7 col-sm-8">
-                        <label class="control-label" for="project_name">Project Name</label>
+                            <label class="control-label" for="project_name">Project Name</label>
                             <input type="text" class="form-control" name="project_name"
                                    placeholder="Project name..."/>
                             <small t-esc="help.get('project_name', '')"/>

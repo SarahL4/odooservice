@@ -133,6 +133,7 @@ class ServiceMobile(http.Controller):
             logger.exception('kw %s' % post)
             project.user_id = int(post.get('user_id')),
             project.partner_id = int(post.get('partner_id')),
+
             logger.exception('kw %s' % project.user_id)
 
             return werkzeug.utils.redirect('/service/all/project', 302)
@@ -164,7 +165,6 @@ class ServiceMobile(http.Controller):
                 'root': '/service/project/create',
                 'project_ids': http.request.env['project.project'].search([]),
                 'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
-                # 'sale_order_template_ids': http.request.env['sale.order.template'].search([]),
                 'order_ids': http.request.env['sale.order'].search([]),
                 'help': {'name': 'This is help string for name'},
                 'validation': {'name': 'Warning'},
