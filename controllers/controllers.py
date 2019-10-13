@@ -141,6 +141,8 @@ class ServiceMobile(http.Controller):
             return http.request.render('service_mobile.view_project', {
                 'root': '/service/%s/project/' % project.id,
                 'project': project,
+                'project.partner_id.name':project.partner_id.name,
+                'project.user_id': project.user_id,
                 'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
                 'user_ids': http.request.env['res.users'].search([]),
                 'help': {'name': 'This is help string for name'},

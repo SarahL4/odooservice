@@ -273,31 +273,6 @@
                                     <span class="badge badge-warning">
                                         <t t-esc="project.task_count"/>
                                     </span>
-                                    <!--                                    <t t-if="order.state == 'sale'">-->
-                                    <!--                                        <span class="badge badge-success">-->
-                                    <!--                                            <t t-esc="order.state"/>-->
-                                    <!--                                        </span>-->
-                                    <!--                                    </t>-->
-                                    <!--                                    <t t-elif="order.state == 'sent'">-->
-                                    <!--                                        <span class="badge badge-info">-->
-                                    <!--                                            <t t-esc="order.state"/>-->
-                                    <!--                                        </span>-->
-                                    <!--                                    </t>-->
-                                    <!--                                    <t t-elif="order.state == 'cancel'">-->
-                                    <!--                                        <span class="badge badge-danger">-->
-                                    <!--                                            <t t-esc="order.state"/>-->
-                                    <!--                                        </span>-->
-                                    <!--                                    </t>-->
-                                    <!--                                    <t t-elif="order.state == 'done'">-->
-                                    <!--                                        <span class="badge badge-secondary">-->
-                                    <!--                                            <t t-esc="order.state"/>-->
-                                    <!--                                        </span>-->
-                                    <!--                                    </t>-->
-                                    <!--                                    <t t-else="">-->
-                                    <!--                                        <span class="badge badge-warning">-->
-                                    <!--                                            <t t-esc="order.state"/>-->
-                                    <!--                                        </span>-->
-                                    <!--                                    </t>-->
                                 </td>
                                 <td>
                                     <t t-esc="project.date_start"/>
@@ -335,18 +310,20 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="col-md-3 col-sm-4 control-label" for="partner_id">Customer:</label>
+                            <label class="col-md-3 col-sm-4 control-label" for="partner_id">Customer: <span><t t-esc="project.partner_id.name"/></span></label>
+
                             <div class="col-md-7 col-sm-8">
                                 <select class="form-control" name="partner_id">
                                     <t t-foreach="partner_ids" t-as="partner">
-                                        <option t-esc="partner.name" t-att-value="partner.id"/>
+                                        <option t-esc="partner.name" t-att-value="partner.id"
+                                        />
                                     </t>
                                 </select>
                             </div>
                         </div>
 
                         <div class="col-md-7 col-sm-8">
-                            <label class="control-label" for="user_id">Project leader/Saler</label>
+                            <label class="control-label" for="user_id">Project leader/Saler: <span><t t-esc="project.user_id.name"/></span></label>
                             <div class="">
                                 <select class="form-control" name="user_id">
                                     <t t-foreach="user_ids" t-as="saler">
