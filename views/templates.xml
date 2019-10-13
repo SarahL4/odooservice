@@ -33,7 +33,7 @@
                                 <th>Customer</th>
                                 <th>Order date</th>
                                 <th>Status</th>
-                                <th>Total amount</th>
+                                <th>Total amount $</th>
                                 <th>Action</th>
                                 <th>Prio</th>
                             </tr>
@@ -140,7 +140,7 @@
                     <div t-att-class="'form-group %s' %validation.get('note', '')">
 
                         <div class="col-md-7 col-sm-8">
-                        <label class="col-md-3 col-sm-4 control-label" for="note">Note</label>
+                            <label class="col-md-3 col-sm-4 control-label" for="note">Note</label>
                             <input type="text" class="form-control" name="note"
                                    t-att-value="order.note if order.note else order.name" placeholder="Notes..."/>
                             <small t-esc="help.get('note', '')"/>
@@ -151,53 +151,42 @@
                                 <span class="switch-label" data-on="On" data-off="Off"/>
                                 <span class="switch-handle"/>
                             </label>
-                            
+
                         </div>
                     </div>
+                    <div class="form-group col-md-7 col-sm-8">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Product</th>
+                                    <th>Måttenhet</th>
+                                    <th>Beställa antal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="sale_order_line_ids" t-as="orderline">
+                                    <td>
+                                        <t t-esc="orderline_index+1"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="orderline.product_id.name"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="orderline.product_uom.name"/>
+                                    </td>
+                                    <td>
+                                        <div t-att-class="'form-group %s' %validation.get('order_line', '')">
+                                        <input type="text" class="form-control" name="qty"
+                                               t-att-value="orderline.product_uom_qty"
+                                               placeholder="0"/>
+                                        </div>
+                                    </td>
+                                </tr>
 
-<!--                    <div class="form-group">-->
-<!--                            <label class="col-md-3 col-sm-4 control-label" for="project_name">Product: </label>-->
-<!--                            <div class="col-md-7 col-sm-8">-->
-
-<!--                                    <p class="form-control-static" name="project_name">-->
-<!--                                    <t t-esc="project.display_name"/>-->
-<!--                                </p>-->
-
-
-
-<!--                            </div>-->
-<!--                        </div>-->
-                        <div class="form-group col-md-7 col-sm-8">
-                    <table class="table table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Product</th>
-                                <th>Måttenhet</th>
-                                <th>Beställa antal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr t-foreach="sale_order_line_ids" t-as="orderline">
-                                <td>
-                                    <t t-esc="orderline_index+1"/>
-                                </td>
-                                <td>
-                                    <t t-esc="orderline.product_id.name"/>
-                                </td>
-                                <td>
-                                    <t t-esc="orderline.product_uom.name"/>
-                                </td>
-                                <td>
-                                    <t t-esc="orderline.product_uom_qty"/>
-                                </td>
-                            </tr>
-
-                        </tbody>
-                    </table>
-</div>
-
-
+                            </tbody>
+                        </table>
+                    </div>
 
 
                     <div class="col-md-12">
@@ -364,7 +353,11 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="col-md-3 col-sm-4 control-label" for="partner_id">Customer: <span><t t-esc="project.partner_id.name"/></span></label>
+                            <label class="col-md-3 col-sm-4 control-label" for="partner_id">Customer:
+                                <span>
+                                    <t t-esc="project.partner_id.name"/>
+                                </span>
+                            </label>
 
                             <div class="col-md-7 col-sm-8">
                                 <select class="form-control" name="partner_id">
@@ -377,7 +370,11 @@
                         </div>
 
                         <div class="col-md-7 col-sm-8">
-                            <label class="control-label" for="user_id">Project leader/Saler: <span><t t-esc="project.user_id.name"/></span></label>
+                            <label class="control-label" for="user_id">Project leader/Saler:
+                                <span>
+                                    <t t-esc="project.user_id.name"/>
+                                </span>
+                            </label>
                             <div class="">
                                 <select class="form-control" name="user_id">
                                     <t t-foreach="user_ids" t-as="saler">

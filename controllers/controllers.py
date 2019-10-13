@@ -45,16 +45,23 @@ class ServiceMobile(http.Controller):
             logger.exception('kw %s' % post)
             order.note = post.get('note')
             order.prio = post.get('prio')
+
+            order.order_line.product_uom_qty = post.get('qty')
+            # order.order_line.update_order_line(order.order_line.id)
+
             logger.exception('kw %s' % order.note)
 
             return werkzeug.utils.redirect('/service/all/order/', 302)
         else:
+            sale_order_line = http.request.env['sale.order.line'].search([('product_uom.name', '=', 'Timme(ar)')])
+            sale_order_line_ids = sale_order_line.search([('order_id', '=', order.id)])
             return http.request.render('service_mobile.view_order', {
                 'root': '/service/%s/order/' % order.id,
                 'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
                 # 'sale_order_line_ids': http.request.env['sale.order.line'].search([]),
-                'sale_order_line_ids': http.request.env['sale.order.line'].search([('product_uom', '=', 'Timme(ar)')]),
                 'order': order,
+                'sale_order_line_ids': sale_order_line_ids,
+                # 'sale_order_line_ids': http.request.env['sale.order.line'].search([('product_uom', '=', 'Timme(ar)')]),
                 'help': {'name': 'This is help string for name'},
                 'validation': {'name': 'Warning'},
                 'input_attrs': {},

@@ -33,6 +33,19 @@ class sale_order(models.Model):
         template.write({'email_to': self.partner_id.email})
         template.send_mail(self.id, force_send=True)
 
+class order_line(models.Model):
+    _inherit = "sale.order.line"
+
+    @api.multi
+    def update_order_line(self, template_id):
+        self. order_id = template_id
+
+        self._onchange_eval('order_id', "1", {})
+        self._onchange_eval('product_uom_qty', "1", {})
+
+
+
+
 # F4 project
 class project_project(models.Model):
     _inherit = "project.project"
