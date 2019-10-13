@@ -162,6 +162,10 @@
                                     <th>Product</th>
                                     <th>Måttenhet</th>
                                     <th>Beställa antal</th>
+                                    <th>Unit Price</th>
+                                    <th>Price exkl. tax</th>
+                                    <th>Tax</th>
+                                    <th>Totacl Price</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -181,6 +185,18 @@
                                                t-att-value="orderline.product_uom_qty"
                                                placeholder="0"/>
                                         </div>
+                                    </td>
+                                    <td>
+                                        <t t-esc="orderline.price_unit"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="orderline.price_subtotal"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="orderline.price_tax"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="orderline.price_total"/>
                                     </td>
                                 </tr>
 
