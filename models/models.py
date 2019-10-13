@@ -14,11 +14,11 @@ from odoo import models, fields, api
 #     def _value_pc(self):
 #         self.value2 = float(self.value) / 100
 
+
 class sale_order(models.Model):
     _inherit = "sale.order"
 
     prio = fields.Boolean(string="Priority", default=False)
-
 
     @api.one
     def set_template(self, template_id):
@@ -32,3 +32,10 @@ class sale_order(models.Model):
         template = self.env.ref('sale.email_template_edi_sale')
         template.write({'email_to': self.partner_id.email})
         template.send_mail(self.id, force_send=True)
+
+# F4 project
+class project_project(models.Model):
+    _inherit = "project.project"
+
+    # Create a new field
+    # prio = fields.Boolean(string="Priority", default=False)
