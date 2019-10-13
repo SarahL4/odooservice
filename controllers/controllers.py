@@ -131,7 +131,8 @@ class ServiceMobile(http.Controller):
     def update_project(self, project, **post):
         if post:
             logger.exception('kw %s' % post)
-            project.user_id.name = post.get('user_id')
+            project.user_id = int(post.get('user_id')),
+            project.partner_id = int(post.get('partner_id')),
             logger.exception('kw %s' % project.user_id)
 
             return werkzeug.utils.redirect('/service/all/project', 302)
@@ -139,6 +140,8 @@ class ServiceMobile(http.Controller):
             return http.request.render('service_mobile.view_project', {
                 'root': '/service/%s/project/' % project.id,
                 'project': project,
+                'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
+                'user_ids': http.request.env['res.users'].search([]),
                 'help': {'name': 'This is help string for name'},
                 'validation': {'name': 'Warning'},
                 'input_attrs': {},
@@ -150,6 +153,7 @@ class ServiceMobile(http.Controller):
             new_project_params = {
                 'name': post.get('project_name'),
                 'allow_timesheets': post.get('allow_timesheets'),
+                'partner_id': int(post.get('partner_id')),
             }
 
             http.request.env['project.project'].create(new_project_params)
