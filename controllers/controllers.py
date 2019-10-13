@@ -116,13 +116,8 @@ class ServiceMobile(http.Controller):
             'order_ids': http.request.env['sale.order'].sudo().search([]),
         })
 
-# --------------------------------------------
-#     @http.route('/service/all/order/', auth='user', website=True)
-#     def index_order(self, **kw):
-#         return http.request.render('service_mobile.index', {
-#             'root': '/service/all/order/',
-#             'order_ids': http.request.env['sale.order'].search([]),
-#         })
+# -------------------------------------------
+    # F4 Project.project
 
     @http.route('/service/all/project', auth='user', website=True)
     def index_project(self, **kw):
@@ -132,22 +127,52 @@ class ServiceMobile(http.Controller):
             'project_ids': http.request.env['project.project'].search([]),
         })
 
-# @http.route('/service/<model("project.project"):project>/project/', auth='user')
-# def update_project(self, project,**kw):
-#
-#     # if post xxx
-#
-#     return http.request.render('service_mobile.view_project', {
-#         'root': '/service/%s/project/' % project.id,
-#         'product_ids': http.request.env['product.product'].search([('is_sale','=',True)]),
-#         'order': order,
-#     })
-#
-# @http.route('/service/<model("project.project"):project>/project/delete', auth='user')
-# def delete_project(self, project,**kw):
-#     project.unlink()
-#     self.index_project()
-#
+    @http.route('/service/<model("project.project"):project>/project/', auth='user', website=True, methods=['GET','POST'])
+    def update_project(self, project, **post):
+        if post:
+            logger.exception('kw %s' % post)
+            project.user_id.name = post.get('user_id')
+            logger.exception('kw %s' % project.user_id)
+
+            return werkzeug.utils.redirect('/service/all/project', 302)
+        else:
+            return http.request.render('service_mobile.view_project', {
+                'root': '/service/%s/project/' % project.id,
+                'project': project,
+                'help': {'name': 'This is help string for name'},
+                'validation': {'name': 'Warning'},
+                'input_attrs': {},
+            })
+
+    @http.route('/service/project/create', auth='user', website=True, methods=['GET', 'POST'])
+    def create_project(self, **post):
+        if post:
+            new_project_params = {
+                'name': post.get('project_name'),
+                'allow_timesheets': post.get('allow_timesheets'),
+            }
+
+            http.request.env['project.project'].create(new_project_params)
+
+            return werkzeug.utils.redirect('/service/all/project/', 302)
+        else:
+            return http.request.render('service_mobile.create_project', {
+                'root': '/service/project/create',
+                'project_ids': http.request.env['project.project'].search([]),
+                'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
+                # 'sale_order_template_ids': http.request.env['sale.order.template'].search([]),
+                'order_ids': http.request.env['sale.order'].search([]),
+                'help': {'name': 'This is help string for name'},
+                'validation': {'name': 'Warning'},
+                'input_attrs': {},
+            })
+
+    @http.route('/service/<model("project.project"):project>/project/delete', auth='user', website=True)
+    def delete_project(self, project, **kw):
+        project.unlink()
+        # self.index_project()
+        return werkzeug.utils.redirect('/service/all/project', 302)
+
 # @http.route('/service/<model("project.project"):project>/project/invoice', auth='user')
 # def invoice_propject(self, order,**kw):
 #     project.invoice() # ?????????????
