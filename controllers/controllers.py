@@ -58,6 +58,7 @@ class ServiceMobile(http.Controller):
 
             return werkzeug.utils.redirect('/service/all/order/', 302)
         else:
+            # sale_order_line_ids = order.order_line.search([('order_id', '=', order.id)])
             sale_order_line_ids = order.order_line.search([('order_id', '=', order.id),('product_uom.name', '=', 'Timme(ar)')])
             return http.request.render('service_mobile.view_order', {
                 'root': '/service/%s/order/' % order.id,
@@ -83,6 +84,7 @@ class ServiceMobile(http.Controller):
             # ~ return self.index_order()
             return werkzeug.utils.redirect('/service/all/order/', 302)
         else:
+
             return http.request.render('service_mobile.create_order', {
                 'root': '/service/order/create',
                 'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
@@ -109,16 +111,12 @@ class ServiceMobile(http.Controller):
 
             return werkzeug.utils.redirect('/service/all/order/', 302)
         else:
-            tasks = order.tasks_ids
-            for t in tasks:
-                task = t
+            task_objs = order.tasks_ids[0].project_id.analytic_account_id.line_ids.filtered(lambda r:r.task_id.sale_order_id.name==order.name)
 
-            task_objs = order.tasks_ids[0].project_id.analytic_account_id.line_ids
-
+            logger.exception('kw %s' % task_objs)
             return http.request.render('service_mobile.view_task', {
                 'root': '/service/%s/task/' % order.id,
                 'order': order,
-                'task': task,
                 'task_objs': task_objs,
                 'date': datetime.datetime.now().strftime('%Y-%m-%d'),
                 'employee': http.request.website.user_id.name,
