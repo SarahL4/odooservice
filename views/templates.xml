@@ -250,7 +250,7 @@
                         <label class="col-md-3 col-sm-4 control-label" for="taskID">Task</label>
                         <div class="col-md-7 col-sm-8">
                             <p class="form-control-static" name="taskID">
-                                <t t-esc="task.id"/>
+                                <t t-esc="task.name"/>
                             </p>
                         </div>
                     </div>
@@ -265,6 +265,10 @@
                             </thead>
                             <tbody>
                                 <tr>
+                                    <td>
+                                        <input type="text" class="form-control" name="name" />
+
+                                    </td>
                                     <td>
                                         <input type="text" class="form-control" name="hours" placeholder="0"/>
 

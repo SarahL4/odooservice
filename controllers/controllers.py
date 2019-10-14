@@ -22,6 +22,7 @@
 
 from odoo import http
 import werkzeug
+import datetime
 
 import logging
 
@@ -96,18 +97,18 @@ class ServiceMobile(http.Controller):
     @http.route('/service/<model("sale.order"):order>/task/', auth='user', website=True, methods=['GET','POST'])
     def add_task(self, order, **post):
         if post:
-            new_task_params = {
-                'unit_amount': int(post.get('hours')),
-            }
+            new_task_params = {'date': datetime.datetime.now(),
+                               'employee_id': http.request.website.user_id.id,
+                               'name': post.get('name'),
+                               'unit_amount': float(post.get('hours')),
+                               'account_id': order.tasks_ids[0].project_id.analytic_account_id.id,
+                               'task_id': order.tasks_ids[0].id}
 
-            new_task_params['task.id'] = order.tasks_ids[0].project_id.analytic_account_id.id
-            # new_task_params['task.id'] = order.tasks_ids[0].project_id.analytic_account_id.id
-
-            order.timesheet_ids.create(new_task_params)
+            http.request.env['account.analytic.line'].create(new_task_params)
 
             return werkzeug.utils.redirect('/service/all/order/', 302)
         else:
-            task = order.tasks_ids.filtered(lambda r: r.sale_order_id == order.id)
+            task = order.tasks_ids.filtered(lambda r: r.sale_line_id == order.id)
 
             return http.request.render('service_mobile.view_task', {
                 'root': '/service/%s/task/' % order.id,
@@ -138,8 +139,11 @@ class ServiceMobile(http.Controller):
 
     @http.route('/service/<model("sale.order"):order>/order/send', auth='user')
     def confirm_order(self, order, **kw):
+
         if order.state != 'cancel':
-            order.send_offer()
+            template = http.request.env.ref('sale.email_template_edi_sale')
+            template.write({'email_to': order.partner_id.email})
+            template.send_mail(order.id, force_send=True)
             if order.state == 'draft':
                 order.state = 'sent'
 
