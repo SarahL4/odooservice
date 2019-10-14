@@ -36,14 +36,15 @@ class sale_order(models.Model):
 class order_line(models.Model):
     _inherit = "sale.order.line"
 
-    @api.multi
-    def update_order_line(self, template_id):
-        self. order_id = template_id
+    # @api.multi
+    # def update_order_line(self, template_id):
+    #     self. order_id = template_id
+    #
+    #     self._onchange_eval('order_id', "1", {})
+    #     self._onchange_eval('product_uom_qty', "1", {})
 
-        self._onchange_eval('order_id', "1", {})
-        self._onchange_eval('product_uom_qty', "1", {})
-
-
+class task_time(models.Model):
+    _inherit = "account.analytic.line"
 
 
 # F4 project

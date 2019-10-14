@@ -33,9 +33,13 @@ class ServiceMobile(http.Controller):
 
     @http.route('/service/all/order/', auth='user', website=True)
     def index_order(self, **kw):
+        order_ids=http.request.env['sale.order'].search([])
+        for order in order_ids:
+            logger.info(order.invoice_status)
         return http.request.render('service_mobile.index', {
             'root': '/service/all/order/',
-            'order_ids': http.request.env['sale.order'].search([]),
+            #'order_ids': http.request.env['sale.order'].search([('invoice_status', '=', 'Fully Invoiced')])
+            'order_ids': http.request.env['sale.order'].search([]).filtered(lambda r : r.invoice_status != 'invoiced')
 
         })
 
@@ -83,6 +87,32 @@ class ServiceMobile(http.Controller):
                 'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
                 'sale_order_template_ids': http.request.env['sale.order.template'].search([]),
                 # ~ 'order': order,
+                'help': {'name': 'This is help string for name'},
+                'validation': {'name': 'Warning'},
+                'input_attrs': {},
+            })
+
+    #Add duration till project-order
+    @http.route('/service/<model("sale.order"):order>/task/', auth='user', website=True, methods=['GET','POST'])
+    def add_task(self, order, **post):
+        if post:
+            new_task_params = {
+                'unit_amount': int(post.get('hours')),
+            }
+
+            new_task_params['task.id'] = order.tasks_ids[0].project_id.analytic_account_id.id
+            # new_task_params['task.id'] = order.tasks_ids[0].project_id.analytic_account_id.id
+
+            order.timesheet_ids.create(new_task_params)
+
+            return werkzeug.utils.redirect('/service/all/order/', 302)
+        else:
+            task = order.tasks_ids.filtered(lambda r: r.sale_order_id == order.id)
+
+            return http.request.render('service_mobile.view_task', {
+                'root': '/service/%s/task/' % order.id,
+                'order': order,
+                'task': task,
                 'help': {'name': 'This is help string for name'},
                 'validation': {'name': 'Warning'},
                 'input_attrs': {},
