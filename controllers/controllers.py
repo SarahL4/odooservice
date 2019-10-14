@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 
 class ServiceMobile(http.Controller):
-
+    # Show list of orders
     @http.route('/service/all/order/', auth='user', website=True)
     def index_order(self, **kw):
         order_ids=http.request.env['sale.order'].search([])
@@ -39,11 +39,11 @@ class ServiceMobile(http.Controller):
             logger.info(order.invoice_status)
         return http.request.render('service_mobile.index', {
             'root': '/service/all/order/',
-            #'order_ids': http.request.env['sale.order'].search([('invoice_status', '=', 'Fully Invoiced')])
             'order_ids': http.request.env['sale.order'].search([]).filtered(lambda r : r.invoice_status != 'invoiced')
 
         })
 
+    # Show order detail and update order
     @http.route('/service/<model("sale.order"):order>/order/', auth='user', website=True, methods=['GET', 'POST'])
     def update_order(self, order, **post):
         if post:
@@ -58,7 +58,6 @@ class ServiceMobile(http.Controller):
 
             return werkzeug.utils.redirect('/service/all/order/', 302)
         else:
-            # sale_order_line_ids = sale_order_line.search([('order_id', '=', order.id),('product_uom.category_id.name', '=', 'Arbetstid')])
             sale_order_line_ids = order.order_line.search([('order_id', '=', order.id),('product_uom.name', '=', 'Timme(ar)')])
             return http.request.render('service_mobile.view_order', {
                 'root': '/service/%s/order/' % order.id,
@@ -70,6 +69,7 @@ class ServiceMobile(http.Controller):
                 'input_attrs': {},
             })
 
+    # Create an new order
     @http.route('/service/order/create', auth='user', website=True, methods=['GET', 'POST'])
     def create_order(self, **post):
         if post:
@@ -93,7 +93,7 @@ class ServiceMobile(http.Controller):
                 'input_attrs': {},
             })
 
-    #Add duration till project-order
+    # Add work hour till order-project-task
     @http.route('/service/<model("sale.order"):order>/task/', auth='user', website=True, methods=['GET','POST'])
     def add_task(self, order, **post):
         if post:
@@ -102,23 +102,32 @@ class ServiceMobile(http.Controller):
                                'name': post.get('name'),
                                'unit_amount': float(post.get('hours')),
                                'account_id': order.tasks_ids[0].project_id.analytic_account_id.id,
-                               'task_id': order.tasks_ids[0].id}
+                               'task_id': order.tasks_ids[0].id
+                               }
 
             http.request.env['account.analytic.line'].create(new_task_params)
 
             return werkzeug.utils.redirect('/service/all/order/', 302)
         else:
-            task = order.tasks_ids.filtered(lambda r: r.sale_line_id == order.id)
+            tasks = order.tasks_ids
+            for t in tasks:
+                task = t
+
+            task_objs = order.tasks_ids[0].project_id.analytic_account_id.line_ids
 
             return http.request.render('service_mobile.view_task', {
                 'root': '/service/%s/task/' % order.id,
                 'order': order,
                 'task': task,
+                'task_objs': task_objs,
+                'date': datetime.datetime.now().strftime('%Y-%m-%d'),
+                'employee': http.request.website.user_id.name,
                 'help': {'name': 'This is help string for name'},
                 'validation': {'name': 'Warning'},
                 'input_attrs': {},
             })
 
+    # Delete an order
     @http.route('/service/<model("sale.order"):order>/order/delete', auth='user', website=True)
     def delete_order(self, order, **kw):
         if order.state != 'cancel':
@@ -137,6 +146,7 @@ class ServiceMobile(http.Controller):
             order.state = 'cancel'
             return werkzeug.utils.redirect('/service/all/order/', 302)
 
+    # Send order
     @http.route('/service/<model("sale.order"):order>/order/send', auth='user')
     def confirm_order(self, order, **kw):
 
@@ -182,7 +192,7 @@ class ServiceMobile(http.Controller):
             return http.request.render('service_mobile.view_project', {
                 'root': '/service/%s/project/' % project.id,
                 'project': project,
-                'project.partner_id.name':project.partner_id.name,
+                'project.partner_id.name': project.partner_id.name,
                 'project.user_id': project.user_id,
                 'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
                 'user_ids': http.request.env['res.users'].search([]),
