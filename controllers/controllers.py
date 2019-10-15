@@ -88,12 +88,6 @@ class ServiceMobile(http.Controller):
         for pto in pprice_to:
             pprice_total += pto
 
-        logger.info(pqty_total)
-        logger.info(pprice_subtotal)
-        logger.info(pprice_tax)
-        logger.info(pprice_total)
-
-
         return http.request.render('service_mobile.index_result', {
             'root': '/service/all/result/',
             'order_ids_hour': order_ids_hour,
@@ -112,41 +106,43 @@ class ServiceMobile(http.Controller):
     @http.route('/service/<model("sale.order"):order>/order/', auth='user', website=True, methods=['GET', 'POST'])
     def update_order(self, order, **post):
         if post:
-            logger.exception('kw %s' % post)
             order.note = post.get('note')
             order.prio = post.get('prio')
-            order.order_line.product_uom_qty = post.get('qty')
-            logger.exception('kw %s' % order.note)
-
-            new_task_params = {'date': datetime.datetime.now(),
-                               'employee_id': http.request.website.user_id.id,
-                               'name': post.get('name'),
-                               'unit_amount': float(post.get('hours')),
-                               'account_id': order.tasks_ids[0].project_id.analytic_account_id.id,
-                               'task_id': order.tasks_ids[0].id
-                               }
-
-            http.request.env['account.analytic.line'].create(new_task_params)
-
+            order.order_line.product_uom_qty = int(float(post.get('qty')))
+            logger.info(order.order_line.product_uom_qty)
             return werkzeug.utils.redirect('/service/all/order/', 302)
         else:
-            # sale_order_line_ids = order.order_line.search([('order_id', '=', order.id)])
-
             sale_order_line_ids = order.order_line.search([('order_id', '=', order.id),('product_uom.name', '=', 'Timme(ar)')])
+            try:
+                task_index = order.tasks_ids[0]
+            except IndexError:
+                task_index = 'null'
 
-            task_objs = order.tasks_ids[0].project_id.analytic_account_id.line_ids.filtered(lambda r:r.task_id.sale_order_id.name==order.name)
-            return http.request.render('service_mobile.view_order', {
-                'root': '/service/%s/order/' % order.id,
-                'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
-                'order': order,
-                'sale_order_line_ids': sale_order_line_ids,
-                'task_objs': task_objs,
-                'date': datetime.datetime.now().strftime('%Y-%m-%d'),
-                'employee': http.request.website.user_id.name,
-                'help': {'name': 'This is help string for name'},
-                'validation': {'name': 'Warning'},
-                'input_attrs': {},
-            })
+                logger.info(task_index)
+            if task_index != 'null':
+                task_objs = order.tasks_ids[0].project_id.analytic_account_id.line_ids.filtered(lambda r: r.task_id.sale_order_id.name == order.name)
+
+                return http.request.render('service_mobile.view_order', {
+                    'root': '/service/%s/order/' % order.id,
+                    'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
+                    'order': order,
+                    'sale_order_line_ids': sale_order_line_ids,
+                    'task_objs': task_objs,
+                    'help': {'name': 'This is help string for name'},
+                    'validation': {'name': 'Warning'},
+                    'input_attrs': {},
+                })
+            else:
+                return http.request.render('service_mobile.view_order', {
+                    'root': '/service/%s/order/' % order.id,
+                    'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
+                    'order': order,
+                    'sale_order_line_ids': sale_order_line_ids,
+                    'task_objs': task_index,
+                    'help': {'name': 'This is help string for name'},
+                    'validation': {'name': 'Warning'},
+                    'input_attrs': {},
+                })
 
     # Create an new order
     @http.route('/service/order/create', auth='user', website=True, methods=['GET', 'POST'])
