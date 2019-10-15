@@ -20,7 +20,7 @@
 ##############################################################################
 
 
-from odoo import http
+from odoo import http, fields
 import werkzeug
 import datetime
 import base64
@@ -256,23 +256,53 @@ class ServiceMobile(http.Controller):
     @http.route('/service/<model("project.project"):project>/project/', auth='user', website=True, methods=['GET','POST'])
     def update_project(self, project, **post):
         if post:
-            logger.exception('kw %s' % post)
-            project.user_id = int(post.get('user_id')),
-            project.partner_id = int(post.get('partner_id')),
+            try:
+                project.user_id = int(post.get('user_id'))
+                project.partner_id = int(post.get('partner_id'))
+            except IndexError:
+                project.user_id = 'null'
+                project.partner_id = 'null'
 
-            logger.exception('kw %s' % project.user_id)
+            logger.exception('kw %s' % post)
+
+            # Upload file
+            if post.get('ufile'):
+                ufile = post.get('ufile')
+                file_datas_bytes = ufile.read()
+                file_datas_binary = base64.b64encode(file_datas_bytes)
+                logger.warn("Bytes data: %s" % file_datas_bytes[:100])
+                logger.warn("Binary data: %s" % file_datas_binary[:100])
+
+                current_datetime=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+                attachment_params={
+                    'name': '%s %s' % (ufile.name, current_datetime),
+                    'type': 'binary',
+                    'datas': file_datas_binary,
+                    'datas_fname': ufile.filename,
+                    'res_model': 'project.project',
+                    'res_id': project.id,
+                    'mimetype': ufile.mimetype,
+                }
+
+                attachment_new = http.request.env['ir.attachment'].create(attachment_params)
 
             return werkzeug.utils.redirect('/service/all/project', 302)
         else:
+            project_attachment_ids = http.request.env['ir.attachment'].search([('res_id', '=', project.id)])
+            project_id = http.request.env['project.project'].search([('id', '=', project.id)])
             return http.request.render('service_mobile.view_project', {
                 'root': '/service/%s/project/' % project.id,
                 'project': project,
-                'project.partner_id.name': project.partner_id.name,
-                'project.user_id.name': project.user_id.name,
+                'project_partner_id': project_id.partner_id,
+                'project_user_id': project_id.user_id,
+                'project_doc_count': project_id.doc_count,
                 'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
                 'user_ids': http.request.env['res.users'].search([]),
+                'project_attachment_ids': project_attachment_ids,
                 'help': {'name': 'This is help string for name'},
                 'validation': {'name': 'Warning'},
+                'message': {'ufile':''},
                 'input_attrs': {},
             })
 
