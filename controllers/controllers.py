@@ -35,8 +35,8 @@ class ServiceMobile(http.Controller):
     @http.route('/service/all/order/', auth='user', website=True)
     def index_order(self, **kw):
         order_ids=http.request.env['sale.order'].search([])
-        for order in order_ids:
-            logger.info(order.invoice_status)
+        # for order in order_ids:
+            # logger.info(order.invoice_status)
         return http.request.render('service_mobile.index', {
             'root': '/service/all/order/',
             'order_ids': http.request.env['sale.order'].search([]).filtered(lambda r : r.invoice_status != 'invoiced')
@@ -48,15 +48,64 @@ class ServiceMobile(http.Controller):
         order_ids_hour = http.request.env['sale.order.line'].search([('product_uom.name', '=', 'Timme(ar)')])
         order_ids_piece = http.request.env['sale.order.line'].search([('product_uom.name', '=', 'st')])
 
-        for hour in order_ids_hour:
-            logger.info(hour)
-        for piece in order_ids_piece:
-            logger.info(piece)
+        qtys = order_ids_hour.mapped('product_uom_qty')
+        qty_total = 0
+        for q in qtys:
+            qty_total += q
+
+        price_sub = order_ids_hour.mapped('price_subtotal')
+        price_subtotal = 0
+        for p in price_sub:
+            price_subtotal += p
+
+        price_t = order_ids_hour.mapped('price_tax')
+        price_tax = 0
+        for pt in price_t:
+            price_tax += pt
+
+        price_to = order_ids_hour.mapped('price_total')
+        price_total = 0
+        for pto in price_to:
+            price_total += pto
+# -------------------------------
+        pqtys = order_ids_piece.mapped('product_uom_qty')
+        pqty_total = 0
+        for q in pqtys:
+            pqty_total += q
+
+        pprice_sub = order_ids_piece.mapped('price_subtotal')
+        pprice_subtotal = 0
+        for p in pprice_sub:
+            pprice_subtotal += p
+
+        pprice_t = order_ids_piece.mapped('price_tax')
+        pprice_tax = 0
+        for pt in pprice_t:
+            pprice_tax += pt
+
+        pprice_to = order_ids_piece.mapped('price_total')
+        pprice_total = 0
+        for pto in pprice_to:
+            pprice_total += pto
+
+        logger.info(pqty_total)
+        logger.info(pprice_subtotal)
+        logger.info(pprice_tax)
+        logger.info(pprice_total)
+
 
         return http.request.render('service_mobile.index_result', {
             'root': '/service/all/result/',
             'order_ids_hour': order_ids_hour,
             'order_ids_piece': order_ids_piece,
+            'qty_total': qty_total,
+            'price_subtotal': price_subtotal,
+            'price_tax': price_tax,
+            'price_total': pprice_total,
+            'pqty_total': pqty_total,
+            'pprice_subtotal': pprice_subtotal,
+            'pprice_tax': pprice_tax,
+            'pprice_total': pprice_total,
         })
 
     # Show order detail and update order
