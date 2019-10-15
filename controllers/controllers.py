@@ -35,53 +35,114 @@ class ServiceMobile(http.Controller):
     @http.route('/service/all/order/', auth='user', website=True)
     def index_order(self, **kw):
         order_ids=http.request.env['sale.order'].search([])
-        for order in order_ids:
-            logger.info(order.invoice_status)
+        # for order in order_ids:
+            # logger.info(order.invoice_status)
         return http.request.render('service_mobile.index', {
             'root': '/service/all/order/',
             'order_ids': http.request.env['sale.order'].search([]).filtered(lambda r : r.invoice_status != 'invoiced')
+        })
 
+    # Show list of orders quantity and amount
+    @http.route('/service/all/result/', auth='user', website=True)
+    def index_result(self, **kw):
+        order_ids_hour = http.request.env['sale.order.line'].search([('product_uom.name', '=', 'Timme(ar)')])
+        order_ids_piece = http.request.env['sale.order.line'].search([('product_uom.name', '=', 'st')])
+
+        qtys = order_ids_hour.mapped('product_uom_qty')
+        qty_total = 0
+        for q in qtys:
+            qty_total += q
+
+        price_sub = order_ids_hour.mapped('price_subtotal')
+        price_subtotal = 0
+        for p in price_sub:
+            price_subtotal += p
+
+        price_t = order_ids_hour.mapped('price_tax')
+        price_tax = 0
+        for pt in price_t:
+            price_tax += pt
+
+        price_to = order_ids_hour.mapped('price_total')
+        price_total = 0
+        for pto in price_to:
+            price_total += pto
+# -------------------------------
+        pqtys = order_ids_piece.mapped('product_uom_qty')
+        pqty_total = 0
+        for q in pqtys:
+            pqty_total += q
+
+        pprice_sub = order_ids_piece.mapped('price_subtotal')
+        pprice_subtotal = 0
+        for p in pprice_sub:
+            pprice_subtotal += p
+
+        pprice_t = order_ids_piece.mapped('price_tax')
+        pprice_tax = 0
+        for pt in pprice_t:
+            pprice_tax += pt
+
+        pprice_to = order_ids_piece.mapped('price_total')
+        pprice_total = 0
+        for pto in pprice_to:
+            pprice_total += pto
+
+        return http.request.render('service_mobile.index_result', {
+            'root': '/service/all/result/',
+            'order_ids_hour': order_ids_hour,
+            'order_ids_piece': order_ids_piece,
+            'qty_total': qty_total,
+            'price_subtotal': price_subtotal,
+            'price_tax': price_tax,
+            'price_total': pprice_total,
+            'pqty_total': pqty_total,
+            'pprice_subtotal': pprice_subtotal,
+            'pprice_tax': pprice_tax,
+            'pprice_total': pprice_total,
         })
 
     # Show order detail and update order
     @http.route('/service/<model("sale.order"):order>/order/', auth='user', website=True, methods=['GET', 'POST'])
     def update_order(self, order, **post):
         if post:
-            logger.exception('kw %s' % post)
             order.note = post.get('note')
             order.prio = post.get('prio')
-            order.order_line.product_uom_qty = post.get('qty')
-            logger.exception('kw %s' % order.note)
-
-            new_task_params = {'date': datetime.datetime.now(),
-                               'employee_id': http.request.website.user_id.id,
-                               'name': post.get('name'),
-                               'unit_amount': float(post.get('hours')),
-                               'account_id': order.tasks_ids[0].project_id.analytic_account_id.id,
-                               'task_id': order.tasks_ids[0].id
-                               }
-
-            http.request.env['account.analytic.line'].create(new_task_params)
-
+            order.order_line.product_uom_qty = int(float(post.get('qty')))
+            logger.info(order.order_line.product_uom_qty)
             return werkzeug.utils.redirect('/service/all/order/', 302)
         else:
-            # sale_order_line_ids = order.order_line.search([('order_id', '=', order.id)])
-
             sale_order_line_ids = order.order_line.search([('order_id', '=', order.id),('product_uom.name', '=', 'Timme(ar)')])
+            try:
+                task_index = order.tasks_ids[0]
+            except IndexError:
+                task_index = 'null'
 
-            task_objs = order.tasks_ids[0].project_id.analytic_account_id.line_ids.filtered(lambda r:r.task_id.sale_order_id.name==order.name)
-            return http.request.render('service_mobile.view_order', {
-                'root': '/service/%s/order/' % order.id,
-                'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
-                'order': order,
-                'sale_order_line_ids': sale_order_line_ids,
-                'task_objs': task_objs,
-                'date': datetime.datetime.now().strftime('%Y-%m-%d'),
-                'employee': http.request.website.user_id.name,
-                'help': {'name': 'This is help string for name'},
-                'validation': {'name': 'Warning'},
-                'input_attrs': {},
-            })
+                logger.info(task_index)
+            if task_index != 'null':
+                task_objs = order.tasks_ids[0].project_id.analytic_account_id.line_ids.filtered(lambda r: r.task_id.sale_order_id.name == order.name)
+
+                return http.request.render('service_mobile.view_order', {
+                    'root': '/service/%s/order/' % order.id,
+                    'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
+                    'order': order,
+                    'sale_order_line_ids': sale_order_line_ids,
+                    'task_objs': task_objs,
+                    'help': {'name': 'This is help string for name'},
+                    'validation': {'name': 'Warning'},
+                    'input_attrs': {},
+                })
+            else:
+                return http.request.render('service_mobile.view_order', {
+                    'root': '/service/%s/order/' % order.id,
+                    'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
+                    'order': order,
+                    'sale_order_line_ids': sale_order_line_ids,
+                    'task_objs': task_index,
+                    'help': {'name': 'This is help string for name'},
+                    'validation': {'name': 'Warning'},
+                    'input_attrs': {},
+                })
 
     # Create an new order
     @http.route('/service/order/create', auth='user', website=True, methods=['GET', 'POST'])
@@ -170,6 +231,7 @@ class ServiceMobile(http.Controller):
 
         return werkzeug.utils.redirect('/service/all/order', 302)
 
+# -------------------------------------------
     # VG-uppgift
     @http.route('/service/public/order', auth='none')
     def index_order_pub(self, **kw):
