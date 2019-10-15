@@ -23,6 +23,7 @@
 from odoo import http
 import werkzeug
 import datetime
+import base64
 
 import logging
 
@@ -31,15 +32,14 @@ logger = logging.getLogger(__name__)
 
 
 class ServiceMobile(http.Controller):
-    # Show list of orders
+    # Show list of orders (show only "Fully Invoiced")
     @http.route('/service/all/order/', auth='user', website=True)
     def index_order(self, **kw):
-        order_ids=http.request.env['sale.order'].search([])
-        # for order in order_ids:
-            # logger.info(order.invoice_status)
+        order_ids = http.request.env['sale.order'].search([]).filtered(lambda r: r.invoice_status != 'invoiced')
+
         return http.request.render('service_mobile.index', {
             'root': '/service/all/order/',
-            'order_ids': http.request.env['sale.order'].search([]).filtered(lambda r : r.invoice_status != 'invoiced')
+            'order_ids': order_ids
         })
 
     # Show list of orders quantity and amount
@@ -108,17 +108,22 @@ class ServiceMobile(http.Controller):
         if post:
             order.note = post.get('note')
             order.prio = post.get('prio')
-            order.order_line.product_uom_qty = int(float(post.get('qty')))
-            logger.info(order.order_line.product_uom_qty)
+
+            sale_order_line_ids = order.order_line.search([('order_id', '=', order.id), ('product_uom.name', '=', 'Timme(ar)')])
+            if len(sale_order_line_ids) > 0:
+                sale_order_line_ids[0].product_uom_qty = post.get('qty')
+                # order.order_line.product_uom_qty = int(float(post.get('qty')))
+
             return werkzeug.utils.redirect('/service/all/order/', 302)
         else:
-            sale_order_line_ids = order.order_line.search([('order_id', '=', order.id),('product_uom.name', '=', 'Timme(ar)')])
+            sale_order_line_ids = order.order_line.search([('order_id', '=', order.id), ('product_uom.name', '=', 'Timme(ar)')])
+            # sale_order_line_ids = order.order_line.search([('order_id', '=', order.id),('product_uom.name', '=', http.request.env.ref('uom.product_uom_hour'))])
+
             try:
                 task_index = order.tasks_ids[0]
             except IndexError:
                 task_index = 'null'
 
-                logger.info(task_index)
             if task_index != 'null':
                 task_objs = order.tasks_ids[0].project_id.analytic_account_id.line_ids.filtered(lambda r: r.task_id.sale_order_id.name == order.name)
 
@@ -155,7 +160,6 @@ class ServiceMobile(http.Controller):
             new_order = http.request.env['sale.order'].create(new_order_params)
             new_order.set_template(int(post.get('sale_order_template_id')))
 
-            # ~ return self.index_order()
             return werkzeug.utils.redirect('/service/all/order/', 302)
         else:
 
@@ -163,7 +167,6 @@ class ServiceMobile(http.Controller):
                 'root': '/service/order/create',
                 'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
                 'sale_order_template_ids': http.request.env['sale.order.template'].search([]),
-                # ~ 'order': order,
                 'help': {'name': 'This is help string for name'},
                 'validation': {'name': 'Warning'},
                 'input_attrs': {},
@@ -221,8 +224,8 @@ class ServiceMobile(http.Controller):
     # Send order
     @http.route('/service/<model("sale.order"):order>/order/send', auth='user')
     def confirm_order(self, order, **kw):
-
         if order.state != 'cancel':
+            # send_offer()
             template = http.request.env.ref('sale.email_template_edi_sale')
             template.write({'email_to': order.partner_id.email})
             template.send_mail(order.id, force_send=True)
@@ -242,13 +245,12 @@ class ServiceMobile(http.Controller):
 
 # -------------------------------------------
     # F4 Project.project
-
     @http.route('/service/all/project', auth='user', website=True)
     def index_project(self, **kw):
+        project_ids = http.request.env['project.project'].search([]).sorted(key=lambda r: r.id, reverse=True)
         return http.request.render('service_mobile.index_project', {
             'root': '/service/all/project',
-            'order_ids': http.request.env['sale.order'].search([]),
-            'project_ids': http.request.env['project.project'].search([]),
+            'project_ids': project_ids,
         })
 
     @http.route('/service/<model("project.project"):project>/project/', auth='user', website=True, methods=['GET','POST'])
@@ -266,7 +268,7 @@ class ServiceMobile(http.Controller):
                 'root': '/service/%s/project/' % project.id,
                 'project': project,
                 'project.partner_id.name': project.partner_id.name,
-                'project.user_id': project.user_id,
+                'project.user_id.name': project.user_id.name,
                 'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
                 'user_ids': http.request.env['res.users'].search([]),
                 'help': {'name': 'This is help string for name'},
