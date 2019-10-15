@@ -40,7 +40,23 @@ class ServiceMobile(http.Controller):
         return http.request.render('service_mobile.index', {
             'root': '/service/all/order/',
             'order_ids': http.request.env['sale.order'].search([]).filtered(lambda r : r.invoice_status != 'invoiced')
+        })
 
+    # Show list of orders quantity and amount
+    @http.route('/service/all/result/', auth='user', website=True)
+    def index_result(self, **kw):
+        order_ids_hour = http.request.env['sale.order.line'].search([('product_uom.name', '=', 'Timme(ar)')])
+        order_ids_piece = http.request.env['sale.order.line'].search([('product_uom.name', '=', 'st')])
+
+        for hour in order_ids_hour:
+            logger.info(hour)
+        for piece in order_ids_piece:
+            logger.info(piece)
+
+        return http.request.render('service_mobile.index_result', {
+            'root': '/service/all/result/',
+            'order_ids_hour': order_ids_hour,
+            'order_ids_piece': order_ids_piece,
         })
 
     # Show order detail and update order
@@ -170,6 +186,7 @@ class ServiceMobile(http.Controller):
 
         return werkzeug.utils.redirect('/service/all/order', 302)
 
+# -------------------------------------------
     # VG-uppgift
     @http.route('/service/public/order', auth='none')
     def index_order_pub(self, **kw):
