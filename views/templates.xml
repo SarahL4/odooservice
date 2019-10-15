@@ -810,28 +810,38 @@
                             <label class="col-md-3 col-sm-4 control-label" for="project_name">Project</label>
                             <div class="col-md-7 col-sm-8">
                                 <p class="form-control-static" name="project_name">
+                                    <t t-esc="project.id"/>:
                                     <t t-esc="project.display_name"/>
                                 </p>
                             </div>
 
-                            <label class="col-md-3 col-sm-4 control-label" for="partner_id">Customer:</label>
+                            <label class="col-md-3 col-sm-4 control-label" for="partner_id">Customer: <span t-esc="project_partner_id.name"/></label>
                             <div class="col-md-7 col-sm-8">
                                 <select class="form-control" name="partner_id">
-                                    <option t-esc="project.partner_id.name" selected="selected"></option>
+<!--                                    <option t-esc="project.partner_id.name if project.partner_id.name else ''" selected="selected"></option>-->
                                     <t t-foreach="partner_ids" t-as="partner">
                                         <option t-esc="partner.name" t-att-value="partner.id"/>
                                     </t>
                                 </select>
                             </div>
 
-                            <label class="col-md-3 col-sm-4 control-label" for="user_id">Project leader/Saler:</label>
+                            <label class="col-md-3 col-sm-4 control-label" for="user_id">Project leader/Saler:<span t-esc="project_user_id.name"/></label>
                             <div class="col-md-7 col-sm-8">
-                                <select class="form-control" name="user_id">
-                                    <option t-esc="project.user_id.name" selected="selected"></option>
+                                <select class="form-control" name="user_id" >
                                     <t t-foreach="user_ids" t-as="saler">
-                                        <option t-esc="saler.name" t-att-value="saler.id"/>
+<!--                                        <option t-if="project_user_id" t-esc="project_user_id.name" t-att-value="project_user_id" selected="selected"/>-->
+                                        <option t-esc="saler.name " t-att-value="saler.id"/>
                                     </t>
                                 </select>
+                            </div>
+
+                            <div t-att-class="'form-group %s' %validation.get('ufile', '')">
+                            <label class="col-md-3 col-sm-4 control-label" for="ufile">Upload Picture</label>
+                            <div t-attf-class="form-group #{message.get('ufile') and 'has-error' or ''}">
+                                <input type="file" name="ufile" placeholder="File to upload (image)"
+                                accpt="image/*" capture="camera"/>
+                                <p class="help-block">File to upload</p>
+                            </div>
                             </div>
 
                             <div class="col-md-12">
@@ -839,6 +849,17 @@
                                     <button id="submit_btn" class="btn btn-primary btn-lg">Save</button>
                                 </div>
                             </div>
+
+                            <label class="col-md-3 col-sm-4 control-label">Project Images:(<span t-esc="project_doc_count"></span>)</label>
+<!--                            <div class="col-md-12 col-sm-12">-->
+<!--                                <div t-if="project_attachment_ids if project_attachment_ids else ''">-->
+<!--                                <t t-foreach="project_attachment_ids" t-as="p_img">-->
+<!--                                    <img name="image" t-att-src="'data:image/jpg;base64,%s' % p_img.name"-->
+<!--                                         style="width:100px;height:100px"/>-->
+<!--                                </t>-->
+<!--                            </div>-->
+<!--                            </div>-->
+
                         </div>
                     </form>
                 </div>
