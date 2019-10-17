@@ -4,6 +4,7 @@
         <template id="assets_frontend" inherit_id="web.assets_frontend">
             <xpath expr="." position="inside">
                 <link rel="stylesheet" href="/service_mobile/static/src/css/site.css"/>
+                <script type="text/javascript" src="/service_mobile/static/src/js/service_mobile.js"/>
             </xpath>
         </template>
 
@@ -11,7 +12,7 @@
         <template id="index">
             <t t-call="website.layout">
 
-                <div class="table-wrapper">
+                <div class="service_mobile table-wrapper">
                     <div class="table-title">
                         <div class="row">
                             <div class="col-sm-12">
@@ -77,10 +78,16 @@
                                         <span class="badge badge-success">
                                             <t t-esc="order.state"/>
                                         </span>
+                                        <span class="badge badge-success">
+                                            <t t-esc="order.invoice_status"/>
+                                        </span>
                                     </t>
                                     <t t-elif="order.state == 'sent'">
                                         <span class="badge badge-info">
                                             <t t-esc="order.state"/>
+                                        </span>
+                                        <span class="badge badge-info">
+                                            <t t-esc="order.invoice_status"/>
                                         </span>
                                     </t>
                                     <t t-elif="order.state == 'cancel'">
@@ -92,10 +99,16 @@
                                         <span class="badge badge-secondary">
                                             <t t-esc="order.state"/>
                                         </span>
+                                        <span class="badge badge-secondary">
+                                            <t t-esc="order.invoice_status"/>
+                                        </span>
                                     </t>
                                     <t t-else="">
                                         <span class="badge badge-warning">
                                             <t t-esc="order.state"/>
+                                        </span>
+                                        <span class="badge badge-warning">
+                                            <t t-esc="order.invoice_status"/>
                                         </span>
                                     </t>
                                 </td>
@@ -110,12 +123,35 @@
                                     <a t-att-href="'/service/%s/order/send' % order.id">
                                         <i class="fa fa-paper-plane"/>
                                     </a>
+                                    |
+                                    <a t-attf-style="cursor: pointer;#{order.state == 'sent' and 'color:#999;' or ''}"
+                                       t-attf-class="flag fa fa-flag #{not order.state == 'sent' or ''}"
+                                       t-attf-data-href="/service/#{slug(order)}/order/flag">
+                                        <t t-if="order.state == 'sent'">
+                                            Flagged
+                                        </t>
+                                        <t t-if="order.state != 'sent'">
+                                            Flag
+                                        </t>
+                                    </a>
+                                    |
+                                    <a t-if="invoice_status == 'to invoice'" t-att-href="'/service/%s/invoice/send' % order.id">
+                                        <span type="button" class="btn btn-primary btn-sm">
+                                            SendAndConfirm Invoice
+                                        </span>
+                                    </a>
                                 </td>
                                 <td>
-                                    <span>
-                                        <t t-esc="'True' if order.prio else 'False'"/>
-                                    </span>
+                                    <div t-att-id="'prio_status_%s' % order.id">
+                                        <t t-if="order.prio">
+                                            Prio
+                                        </t>
+                                        <t t-if="not order.prio">
+                                            Normal
+                                        </t>
+                                    </div>
                                 </td>
+
                                 <td>
                                     <t t-if="order.state == 'sale'">
                                         <span type="button" class="btn btn-info btn-sm">
@@ -125,9 +161,6 @@
                                         </span>
                                     </t>
                                     <t t-else="">
-                                        <!--                                        <span type="button" class="btn btn-info btn-sm" disabled="true" style="color:white">-->
-                                        <!--                                        Add Task Time-->
-                                        <!--                                        </span>-->
                                     </t>
                                 </td>
                             </tr>
@@ -406,6 +439,7 @@
                                         <th>Product</th>
                                         <th>Måttenhet</th>
                                         <th>Beställa antal</th>
+                                        <th>Levererat antal</th>
                                         <th>Unit Price</th>
                                         <th>Price exkl. tax</th>
                                         <th>Tax</th>
@@ -427,6 +461,13 @@
                                             <div t-att-class="'form-group %s' %validation.get('order_line', '')">
                                                 <input type="text" class="form-control" name="qty"
                                                        t-att-value="orderline.product_uom_qty"
+                                                       placeholder="0"/>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div t-att-class="'form-group %s' %validation.get('order_line', '')">
+                                                <input type="text" class="form-control" name="qty_delivered"
+                                                       t-att-value="orderline.qty_delivered"
                                                        placeholder="0"/>
                                             </div>
                                         </td>
@@ -815,33 +856,37 @@
                                 </p>
                             </div>
 
-                            <label class="col-md-3 col-sm-4 control-label" for="partner_id">Customer: <span t-esc="project_partner_id.name"/></label>
+                            <label class="col-md-3 col-sm-4 control-label" for="partner_id">Customer:
+                                <span t-esc="project_partner_id.name"/>
+                            </label>
                             <div class="col-md-7 col-sm-8">
                                 <select class="form-control" name="partner_id">
-<!--                                    <option t-esc="project.partner_id.name if project.partner_id.name else ''" selected="selected"></option>-->
+                                    <!--                                    <option t-esc="project.partner_id.name if project.partner_id.name else ''" selected="selected"></option>-->
                                     <t t-foreach="partner_ids" t-as="partner">
                                         <option t-esc="partner.name" t-att-value="partner.id"/>
                                     </t>
                                 </select>
                             </div>
 
-                            <label class="col-md-3 col-sm-4 control-label" for="user_id">Project leader/Saler:<span t-esc="project_user_id.name"/></label>
+                            <label class="col-md-3 col-sm-4 control-label" for="user_id">Project leader/Saler:
+                                <span t-esc="project_user_id.name"/>
+                            </label>
                             <div class="col-md-7 col-sm-8">
-                                <select class="form-control" name="user_id" >
+                                <select class="form-control" name="user_id">
                                     <t t-foreach="user_ids" t-as="saler">
-<!--                                        <option t-if="project_user_id" t-esc="project_user_id.name" t-att-value="project_user_id" selected="selected"/>-->
+                                        <!--                                        <option t-if="project_user_id" t-esc="project_user_id.name" t-att-value="project_user_id" selected="selected"/>-->
                                         <option t-esc="saler.name " t-att-value="saler.id"/>
                                     </t>
                                 </select>
                             </div>
 
                             <div t-att-class="'form-group %s' %validation.get('ufile', '')">
-                            <label class="col-md-3 col-sm-4 control-label" for="ufile">Upload Picture</label>
-                            <div t-attf-class="form-group #{message.get('ufile') and 'has-error' or ''}">
-                                <input type="file" name="ufile" placeholder="File to upload (image)"
-                                accpt="image/*" capture="camera"/>
-                                <p class="help-block">File to upload</p>
-                            </div>
+                                <label class="col-md-3 col-sm-4 control-label" for="ufile">Upload Picture</label>
+                                <div t-attf-class="form-group #{message.get('ufile') and 'has-error' or ''}">
+                                    <input type="file" name="ufile" placeholder="File to upload (image)"
+                                           accpt="image/*" capture="camera"/>
+                                    <p class="help-block">File to upload</p>
+                                </div>
                             </div>
 
                             <div class="col-md-12">
@@ -850,15 +895,17 @@
                                 </div>
                             </div>
 
-                            <label class="col-md-3 col-sm-4 control-label">Project Images:(<span t-esc="project_doc_count"></span>)</label>
-<!--                            <div class="col-md-12 col-sm-12">-->
-<!--                                <div t-if="project_attachment_ids if project_attachment_ids else ''">-->
-<!--                                <t t-foreach="project_attachment_ids" t-as="p_img">-->
-<!--                                    <img name="image" t-att-src="'data:image/jpg;base64,%s' % p_img.name"-->
-<!--                                         style="width:100px;height:100px"/>-->
-<!--                                </t>-->
-<!--                            </div>-->
-<!--                            </div>-->
+                            <label class="col-md-3 col-sm-4 control-label">Project Images:(<span
+                                    t-esc="project_doc_count"></span>)
+                            </label>
+                            <!--                            <div class="col-md-12 col-sm-12">-->
+                            <!--                                <div t-if="project_attachment_ids if project_attachment_ids else ''">-->
+                            <!--                                <t t-foreach="project_attachment_ids" t-as="p_img">-->
+                            <!--                                    <img name="image" t-att-src="'data:image/jpg;base64,%s' % p_img.name"-->
+                            <!--                                         style="width:100px;height:100px"/>-->
+                            <!--                                </t>-->
+                            <!--                            </div>-->
+                            <!--                            </div>-->
 
                         </div>
                     </form>

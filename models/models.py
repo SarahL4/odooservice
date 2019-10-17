@@ -27,11 +27,13 @@ class sale_order(models.Model):
         self._onchange_eval('sale_order_template_id', "1", {})
         self._onchange_eval('partner_id', "1", {})
 
+
     @api.one
     def send_offer(self):
         template = self.env.ref('sale.email_template_edi_sale')
         template.write({'email_to': self.partner_id.email})
         template.send_mail(self.id, force_send=True)
+
 
 class order_line(models.Model):
     _inherit = "sale.order.line"
@@ -51,5 +53,3 @@ class task_time(models.Model):
 class project_project(models.Model):
     _inherit = "project.project"
 
-    # Create a new field
-    # prio = fields.Boolean(string="Priority", default=False)

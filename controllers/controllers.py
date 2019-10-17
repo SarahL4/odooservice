@@ -35,7 +35,8 @@ class ServiceMobile(http.Controller):
     # Show list of orders (show only "Fully Invoiced")
     @http.route('/service/all/order/', auth='user', website=True)
     def index_order(self, **kw):
-        order_ids = http.request.env['sale.order'].search([]).filtered(lambda r: r.invoice_status != 'invoiced')
+        # order_ids = http.request.env['sale.order'].search([]).filtered(lambda r: r.invoice_status != 'invoiced')
+        order_ids = http.request.env['sale.order'].search([])
 
         return http.request.render('service_mobile.index', {
             'root': '/service/all/order/',
@@ -67,7 +68,7 @@ class ServiceMobile(http.Controller):
         price_total = 0
         for pto in price_to:
             price_total += pto
-# -------------------------------
+        # -------------------------------
         pqtys = order_ids_piece.mapped('product_uom_qty')
         pqty_total = 0
         for q in pqtys:
@@ -108,17 +109,19 @@ class ServiceMobile(http.Controller):
         if post:
             order.note = post.get('note')
             order.prio = post.get('prio')
+            # env['sale.order.line'].search([('order_id', '=', order.id), ('line.product_uom', '=', http.request.env.ref('uom.product_uom_hour'))])
 
-            # frågan: Skillnad mellan kategorin "arbetstid" och enhet "Timme(ar)" är:
-            # kategorin "arbetstid" ingår båda "hours" and "days", och enhet "Timme(ar)" fokuserar på "hours"
             sale_order_line_ids = order.order_line.search([('order_id', '=', order.id), ('product_uom.name', '=', 'Timme(ar)')])
             if len(sale_order_line_ids) > 0:
                 sale_order_line_ids[0].product_uom_qty = post.get('qty')
                 # order.order_line.product_uom_qty = int(float(post.get('qty')))
+                sale_order_line_ids[0].qty_delivered = post.get('qty_delivered')
+
 
             return werkzeug.utils.redirect('/service/all/order/', 302)
         else:
-            sale_order_line_ids = order.order_line.search([('order_id', '=', order.id), ('product_uom.name', '=', 'Timme(ar)')])
+            sale_order_line_ids = order.order_line.search(
+                [('order_id', '=', order.id), ('product_uom.name', '=', 'Timme(ar)')])
             # sale_order_line_ids = order.order_line.search([('order_id', '=', order.id),('product_uom.name', '=', http.request.env.ref('uom.product_uom_hour'))])
 
             try:
@@ -127,7 +130,8 @@ class ServiceMobile(http.Controller):
                 task_index = 'null'
 
             if task_index != 'null':
-                task_objs = order.tasks_ids[0].project_id.analytic_account_id.line_ids.filtered(lambda r: r.task_id.sale_order_id.name == order.name)
+                task_objs = order.tasks_ids[0].project_id.analytic_account_id.line_ids.filtered(
+                    lambda r: r.task_id.sale_order_id.name == order.name)
 
                 return http.request.render('service_mobile.view_order', {
                     'root': '/service/%s/order/' % order.id,
@@ -174,8 +178,20 @@ class ServiceMobile(http.Controller):
                 'input_attrs': {},
             })
 
+    # method: skapa fakturan. den returnerar ett id, inte objekt
+    @http.route('/service/<model("sale.order"):order>/invoice/send/', auth='user', website=True, methods=['GET', 'POST'])
+    def create_invoice(self, order, **kw):
+        logger.info(order.invoice_status)
+        new_invoice_id = order.action_invoice_create()
+        invoice = http.request.env['account.invoice'].browse(new_invoice_id)
+        template = http.request.env.ref('account.email_template_edi_invoice')
+        template.write({'email_to': order.partner_id.email})
+        template.send_mail(invoice.id, force_send=True)
+
+        return werkzeug.utils.redirect('/service/all/order/', 302)
+
     # Add work hour till order-project-task
-    @http.route('/service/<model("sale.order"):order>/task/', auth='user', website=True, methods=['GET','POST'])
+    @http.route('/service/<model("sale.order"):order>/task/', auth='user', website=True, methods=['GET', 'POST'])
     def add_task(self, order, **post):
         if post:
             new_task_params = {'date': datetime.datetime.now(),
@@ -190,7 +206,8 @@ class ServiceMobile(http.Controller):
 
             return werkzeug.utils.redirect('/service/all/order/', 302)
         else:
-            task_objs = order.tasks_ids[0].project_id.analytic_account_id.line_ids.filtered(lambda r:r.task_id.sale_order_id.name==order.name)
+            task_objs = order.tasks_ids[0].project_id.analytic_account_id.line_ids.filtered(
+                lambda r: r.task_id.sale_order_id.name == order.name)
 
             logger.exception('kw %s' % task_objs)
             return http.request.render('service_mobile.view_task', {
@@ -236,7 +253,24 @@ class ServiceMobile(http.Controller):
 
         return werkzeug.utils.redirect('/service/all/order', 302)
 
-# -------------------------------------------
+    @http.route('/service/<model("sale.order"):order>/order/flag', type='json', auth="user", website=True)
+    def post_flag(self, order, **kwargs):
+
+        if not http.request.session.uid:
+            return {'error': 'anonymous_user'}
+
+        try:
+            # Invert order.prio False -> True, True -> False
+            order.prio = not order.prio
+        except:
+            return {'error': 'post_non_flaggable'}
+
+        return {'success': 'Yes!',
+                'flag_value': order.prio,
+                'order_id': order.id,
+                }
+
+    # -------------------------------------------
     # VG-uppgift
     @http.route('/service/public/order', auth='none')
     def index_order_pub(self, **kw):
@@ -245,7 +279,7 @@ class ServiceMobile(http.Controller):
             'order_ids': http.request.env['sale.order'].sudo().search([]),
         })
 
-# -------------------------------------------
+    # -------------------------------------------
     # F4 Project.project
     @http.route('/service/all/project', auth='user', website=True)
     def index_project(self, **kw):
@@ -255,7 +289,8 @@ class ServiceMobile(http.Controller):
             'project_ids': project_ids,
         })
 
-    @http.route('/service/<model("project.project"):project>/project/', auth='user', website=True, methods=['GET','POST'])
+    @http.route('/service/<model("project.project"):project>/project/', auth='user', website=True,
+                methods=['GET', 'POST'])
     def update_project(self, project, **post):
         if post:
             try:
@@ -275,9 +310,9 @@ class ServiceMobile(http.Controller):
                 logger.warn("Bytes data: %s" % file_datas_bytes[:100])
                 logger.warn("Binary data: %s" % file_datas_binary[:100])
 
-                current_datetime=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                current_datetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-                attachment_params={
+                attachment_params = {
                     'name': '%s %s' % (ufile.name, current_datetime),
                     'type': 'binary',
                     'datas': file_datas_binary,
@@ -304,7 +339,7 @@ class ServiceMobile(http.Controller):
                 'project_attachment_ids': project_attachment_ids,
                 'help': {'name': 'This is help string for name'},
                 'validation': {'name': 'Warning'},
-                'message': {'ufile':''},
+                'message': {'ufile': ''},
                 'input_attrs': {},
             })
 
