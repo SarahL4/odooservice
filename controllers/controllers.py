@@ -109,6 +109,8 @@ class ServiceMobile(http.Controller):
             order.note = post.get('note')
             order.prio = post.get('prio')
 
+            # frågan: Skillnad mellan kategorin "arbetstid" och enhet "Timme(ar)" är:
+            # kategorin "arbetstid" ingår båda "hours" and "days", och enhet "Timme(ar)" fokuserar på "hours"
             sale_order_line_ids = order.order_line.search([('order_id', '=', order.id), ('product_uom.name', '=', 'Timme(ar)')])
             if len(sale_order_line_ids) > 0:
                 sale_order_line_ids[0].product_uom_qty = post.get('qty')
