@@ -35,8 +35,10 @@ class ServiceMobile(http.Controller):
     # Show list of orders (show only "Fully Invoiced")
     @http.route('/service/all/order/', auth='user', website=True)
     def index_order(self, **kw):
-        # order_ids = http.request.env['sale.order'].search([]).filtered(lambda r: r.invoice_status != 'invoiced')
-        order_ids = http.request.env['sale.order'].search([])
+        # order_ids = http.request.env['sale.order'].search([])
+        order_ids = http.request.env['sale.order'].search([]).filtered(lambda r: r.invoice_status != 'invoiced')
+        # for order in order_ids:
+        #     logger.info(order.invoice_status)
 
         return http.request.render('service_mobile.index', {
             'root': '/service/all/order/',
@@ -123,22 +125,45 @@ class ServiceMobile(http.Controller):
             sale_order_line_ids = order.order_line.search(
                 [('order_id', '=', order.id), ('product_uom.name', '=', 'Timme(ar)')])
             # sale_order_line_ids = order.order_line.search([('order_id', '=', order.id),('product_uom.name', '=', http.request.env.ref('uom.product_uom_hour'))])
-
+            logger.info(len(order.tasks_ids))
             try:
                 task_index = order.tasks_ids[0]
             except IndexError:
                 task_index = 'null'
 
-            if task_index != 'null':
+            if len(order.tasks_ids) == 1:
+
                 task_objs = order.tasks_ids[0].project_id.analytic_account_id.line_ids.filtered(
                     lambda r: r.task_id.sale_order_id.name == order.name)
-
+                # logger.info(task_objs) #[account.analytic.line(62,63,60,61)]
+                logger.info(task_objs)
+                logger.warn(task_objs)
                 return http.request.render('service_mobile.view_order', {
                     'root': '/service/%s/order/' % order.id,
                     'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
                     'order': order,
                     'sale_order_line_ids': sale_order_line_ids,
                     'task_objs': task_objs,
+                    'help': {'name': 'This is help string for name'},
+                    'validation': {'name': 'Warning'},
+                    'input_attrs': {},
+                })
+            elif len(order.tasks_ids) >= 2:
+                task_obs=[]
+                logger.info(len(order.tasks_ids))
+                for task in order.tasks_ids:
+                    # project.task(52,)
+                    task_ob = task.project_id.analytic_account_id.line_ids.filtered(lambda r: r.task_id.sale_order_id.name == order.name)
+                    task_obs.append(task_ob)
+                    logger.info(task_obs)
+                    # task_objs.pop(task_ob)
+
+                return http.request.render('service_mobile.view_order', {
+                    'root': '/service/%s/order/' % order.id,
+                    'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
+                    'order': order,
+                    'sale_order_line_ids': sale_order_line_ids,
+                    'task_objs': task_obs,
                     'help': {'name': 'This is help string for name'},
                     'validation': {'name': 'Warning'},
                     'input_attrs': {},
@@ -154,6 +179,28 @@ class ServiceMobile(http.Controller):
                     'validation': {'name': 'Warning'},
                     'input_attrs': {},
                 })
+
+    # Update/delivery on row "levererat antal"
+    # @http.route('/service/<model("sale.order"):order>/order/delivered', auth='user', website=True, methods=['GET', 'POST'])
+    # def update_delivery(self, order, **post):
+    #     if post:
+    #         order.note = post.get('note')
+    #         order.prio = post.get('prio')
+    #
+    #         line_ids = order.order_line.filtered(
+    #             lambda line: line.product_uom == http.request.env.ref('uom.product_uom_hour'))
+    #         if len(line_ids) > 0:
+    #             line_ids[0].product_uom_qty = post.get('qty')
+    #         return self.index_order()
+    #     else:
+    #         return http.request.render('service_mobile.view_order', {
+    #             'root': '/service/%s/order/' % order.id,
+    #             'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
+    #             'order': order,
+    #             'help': {'name': 'This is help string for name'},
+    #             'validation': {'name': 'Warning'},
+    #             'input_attrs': {},
+    #         })
 
     # Create an new order
     @http.route('/service/order/create', auth='user', website=True, methods=['GET', 'POST'])
@@ -181,7 +228,6 @@ class ServiceMobile(http.Controller):
     # method: skapa fakturan. den returnerar ett id, inte objekt
     @http.route('/service/<model("sale.order"):order>/invoice/send/', auth='user', website=True, methods=['GET', 'POST'])
     def create_invoice(self, order, **kw):
-        logger.info(order.invoice_status)
         new_invoice_id = order.action_invoice_create()
         invoice = http.request.env['account.invoice'].browse(new_invoice_id)
         template = http.request.env.ref('account.email_template_edi_invoice')
@@ -199,7 +245,9 @@ class ServiceMobile(http.Controller):
                                'name': post.get('name'),
                                'unit_amount': float(post.get('hours')),
                                'account_id': order.tasks_ids[0].project_id.analytic_account_id.id,
-                               'task_id': order.tasks_ids[0].id
+                               'task_id': order.tasks_ids[0].id,
+                               'user_id': order.tasks_ids[0].user_id.id,
+                               'project_id': order.tasks_ids[0].project_id.id,
                                }
 
             http.request.env['account.analytic.line'].create(new_task_params)

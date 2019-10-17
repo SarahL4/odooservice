@@ -47,7 +47,7 @@
                                 <th>Total amount $</th>
                                 <th>Action</th>
                                 <th>Prio</th>
-                                <th>Add Task Time</th>
+                                <th>Task</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -134,12 +134,12 @@
                                             Flag
                                         </t>
                                     </a>
-                                    |
-                                    <a t-if="invoice_status == 'to invoice'" t-att-href="'/service/%s/invoice/send' % order.id">
-                                        <span type="button" class="btn btn-primary btn-sm">
-                                            SendAndConfirm Invoice
-                                        </span>
-                                    </a>
+
+                                    <!--                                    <a t-if="order.invoice_status=='to invoice'" t-att-href="'/service/%s/invoice/send' % order.id">-->
+                                    <!--                                        <span type="button" class="btn btn-primary btn-sm">-->
+                                    <!--                                            | Confirm Invoice-->
+                                    <!--                                        </span>-->
+                                    <!--                                    </a>-->
                                 </td>
                                 <td>
                                     <div t-att-id="'prio_status_%s' % order.id">
@@ -154,13 +154,18 @@
 
                                 <td>
                                     <t t-if="order.state == 'sale'">
-                                        <span type="button" class="btn btn-info btn-sm">
+                                        <span type="button" class="btn btn-info btn-sm mb-1">
                                             <a t-att-href="'/service/%s/task' % order.id" style="color:white">
                                                 Add Task Time
                                             </a>
                                         </span>
                                     </t>
-                                    <t t-else="">
+                                    <t t-if="order.invoice_status=='to invoice'">
+                                        <span type="button" class="btn btn-info btn-sm">
+                                            <a t-att-href="'/service/%s/invoice/send' % order.id" style="color:white">
+                                                Confirm Invoice
+                                            </a>
+                                        </span>
                                     </t>
                                 </td>
                             </tr>
@@ -444,6 +449,7 @@
                                         <th>Price exkl. tax</th>
                                         <th>Tax</th>
                                         <th>Totacl Price</th>
+                                        <th>Leverera Nu</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -483,6 +489,12 @@
                                         <td>
                                             <t t-esc="orderline.price_total"/>
                                         </td>
+                                        <td>
+                                            <a t-att-href="'/service/%s/order/send' % order.id">
+                                                Delivery now
+                                            </a>
+
+                                        </td>
                                     </tr>
 
                                 </tbody>
@@ -504,56 +516,110 @@
                         <input type="hidden" name="id" t-att-value="order.id"/>
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
 
-                        <div class="form-group">
+                        <div class="form-group" t-foreach="order.tasks_ids if order.tasks_ids else ''" t-as="task">
                             <label class="col-md-3 col-sm-4 control-label">Task</label>
                             <div class="col-md-7 col-sm-8">
-                                <p class="form-control-static" name="taskID">
-                                    <!--                                t-if="order.tasks_ids[0].name if order.tasks_ids[0].name else ''"-->
-                                    <!--                                <t  t-esc="order.tasks_ids[0].name"/>-->
+                                <p class="form-control-static" name="taskID" t-esc="task.name">
                                 </p>
                             </div>
+
+
+                            <label class="col-md-3 col-sm-4 control-label">Time Rapport</label>
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Order Id</th>
+                                        <th>Date</th>
+                                        <th>Employee</th>
+                                        <th>Work Description</th>
+                                        <th>Duration(Hours)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="task.project_id.analytic_account_id.line_ids.filtered(lambda r: r.task_id.sale_order_id.name == order.name)"
+                                        t-as="t">
+                                        <td>
+                                            <t t-esc="t_index+1"/>
+                                        </td>
+                                        <td>
+                                            <!--                                        <t t-foreach="task_obj" t-as="ta"/>-->
+                                            <t t-esc="t.task_id.sale_order_id.name"/>
+                                        </td>
+                                        <td>
+                                            <t t-esc="t.date"/>
+                                        </td>
+                                        <td>
+                                            <t t-esc="t.employee_id.name"/>
+                                        </td>
+                                        <td>
+                                            <t t-esc="t.name"/>
+                                        </td>
+                                        <td>
+                                            <t t-esc="t.unit_amount"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <!--                            -->
+<!--                                <tbody t-if="len(order.tasks_ids) >= 2" >-->
+<!--                                    <tr t-foreach="task.project_id.analytic_account_id.line_ids.filtered(lambda r: r.task_id.sale_order_id.name == order.name)"-->
+<!--                                        t-as="t">-->
+<!--                                        <td>-->
+<!--                                            <t t-esc="t_index+1"/>-->
+<!--                                        </td>-->
+<!--                                        <td>-->
+<!--                                            &lt;!&ndash;                                        <t t-foreach="task_obj" t-as="ta"/>&ndash;&gt;-->
+<!--                                            <t t-esc="t.task_id.sale_order_id.name"/>-->
+<!--                                        </td>-->
+<!--                                        <td>-->
+<!--                                            <t t-esc="t.date"/>-->
+<!--                                        </td>-->
+<!--                                        <td>-->
+<!--                                            <t t-esc="t.employee_id.name"/>-->
+<!--                                        </td>-->
+<!--                                        <td>-->
+<!--                                            <t t-esc="t.name"/>-->
+<!--                                        </td>-->
+<!--                                        <td>-->
+<!--                                            <t t-esc="t.unit_amount"/>-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+
+
+<!--                                </tbody>-->
+                                <!--                            <tbody t-if="task_objs != 'null'">-->
+                                <!--                                <tr t-foreach="task_objs" t-as="task_obj">-->
+                                <!--                                    <td>-->
+                                <!--                                        <t t-esc="task_obj_index+1"/>-->
+                                <!--                                    </td>-->
+                                <!--                                    <td>-->
+                                <!--                                        <t t-esc="task_obj.task_id.sale_order_id.name"/>-->
+                                <!--                                    </td>-->
+                                <!--                                    <td>-->
+                                <!--                                        <t t-esc="task_obj.date"/>-->
+                                <!--                                    </td>-->
+                                <!--                                    <td>-->
+                                <!--                                        <t t-esc="task_obj.employee_id.name"/>-->
+                                <!--                                    </td>-->
+                                <!--                                    <td>-->
+                                <!--                                        <t t-esc="task_obj.name"/>-->
+                                <!--                                    </td>-->
+                                <!--                                    <td>-->
+                                <!--                                        <t t-esc="task_obj.unit_amount"/>-->
+                                <!--                                    </td>-->
+                                <!--                                </tr>-->
+
+                                <!--                            </tbody>-->
+                            </table>
+                            <a t-if="task_objs != 'null'" type="button" class="btn btn-primary btn-md pull-right"
+                               t-att-href="'/service/%s/task' % order.id">
+                                Add Task Time
+                            </a>
+
                         </div>
 
-                        <label class="col-md-3 col-sm-4 control-label">Time Rapport</label>
-                        <table class="table table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Order Id</th>
-                                    <th>Date</th>
-                                    <th>Employee</th>
-                                    <th>Work Description</th>
-                                    <th>Duration(Hours)</th>
-                                </tr>
-                            </thead>
-                            <tbody t-if="task_objs != 'null'">
-                                <tr t-foreach="task_objs" t-as="task_obj">
-                                    <td>
-                                        <t t-esc="task_obj_index+1"/>
-                                    </td>
-                                    <td>
-                                        <t t-esc="task_obj.task_id.sale_order_id.name"/>
-                                    </td>
-                                    <td>
-                                        <t t-esc="task_obj.date"/>
-                                    </td>
-                                    <td>
-                                        <t t-esc="task_obj.employee_id.name"/>
-                                    </td>
-                                    <td>
-                                        <t t-esc="task_obj.name"/>
-                                    </td>
-                                    <td>
-                                        <t t-esc="task_obj.unit_amount"/>
-                                    </td>
-                                </tr>
+                      
 
-                            </tbody>
-                        </table>
-                        <a t-if="task_objs != 'null'" type="button" class="btn btn-primary btn-md pull-right"
-                           t-att-href="'/service/%s/task' % order.id">
-                            Add Task Time
-                        </a>
                     </form>
                     <!--Timesheet report end-->
 
