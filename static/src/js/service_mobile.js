@@ -62,11 +62,83 @@ odoo.define('service_mobile.index', function (require) {
                     //~ Uppdatera vår textruta med prio. 
                     if(data.flag_value === true) {
                         // Sätt texten i div med id="order_status_???" till Prio eller Normal beroende på om prio är true/false
-                        $("#prio_status_" + data.order_id).html("Prio");
+                        $("#prio_status_" + data.order_id).html('<span class="badge badge-danger">Prio</span>');
+                        $("#prio_text_" + data.order_id).html('Prio');
                     } else {
-                        $("#prio_status_" + data.order_id).html("Normal");
+                        $("#prio_status_" + data.order_id).html('<span class="badge badge-info">Normal/Non-Prio</span>');
+                        $("#prio_text_" + data.order_id).html('Normal/Non-Prio');
                     }
                 }
             });
     });
+
+        // Hitta på sidan
+    $('.check').on('click', function (ev) {
+
+        //~ If this method is called, the default action of the event will not be triggered.
+        ev.preventDefault();
+
+        var $link = $(ev.currentTarget);
+
+        //~ Logga länken användaren klickade på
+        console.log($link.data('href'));
+
+        // href pekar unikt på respektive order, använder inloggning från sessionen när vi anropar vår controller /service/<model("sale.order"):order>/order/flag
+        ajax.jsonRpc($link.data('href'), 'call', {})
+            .then(function (data) {
+
+                //~ Logga responsen från vår controller
+                console.log(data);
+
+                // Felhantering
+                if(data.error) {
+                    var $warning;
+                    if(data.error === 'anonymous_user') {
+                        $warning = $('<div class="alert alert-danger alert-dismissable oe_forum_alert" id="check_alert">'+
+                            '<button type="button" class="close notification_close" data-dismiss="alert" aria-hidden="true">&times;</button>'+
+                            _t('Sorry you must be logged in to confirm an invoice') +
+                            '</div>');
+                    } else if(data.error === 'post_non_check') {
+                        $warning = $('<div class="alert alert-danger alert-dismissable oe_forum_alert" id="check_alert">'+
+                            '<button type="button" class="close notification_close" data-dismiss="alert" aria-hidden="true">&times;</button>'+
+                            _t('This invoice can not be confirmed') +
+                            '</div>');
+                    }
+
+                    //~ Hitta meddelanderutan för länken
+                    var flag_alert = $link.parent().find("#check_alert");
+
+                    //~ Lägg in varningen i vår meddelanderuta
+                    if (flag_alert.length === 0) {
+                        $link.parent().append($warning);
+                    }
+
+                } else if(data.success) {
+                    //~ Om allt går bra: logga lite data:
+                    console.log(data.success);
+                    console.log(data.check_value);
+
+                    //~ Uppdatera vår textruta med prio.
+                    if(data.check_value === "invoiced") {
+                        // Sätt texten i div med id="order_status_???" till Prio eller Normal beroende på om prio är true/false
+                        $("#invoice_status_" + data.order_id).html("Invoiced");
+                        $("#invoice_text_" + data.order_id).html("Invoiced");
+                        $("#invoice_ba_" + data.order_id).html('<span class="badge badge-success">Invoiced</span>');
+                    } else if(data.check_value === "to invoice"){
+                        $("#invoice_status_" + data.order_id).html("Not Confirm Invoice Yet");
+                        $("#invoice_text_" + data.order_id).html("Not Confirm Invoice Yet");
+                        $("#invoice_ba_" + data.order_id).html('<span class="badge badge-info">To Invoice</span>');
+                    } else {
+                        $("#invoice_status_" + data.order_id).html("No Invoice");
+                        $("#invoice_text_" + data.order_id).html("No Invoice");
+                        $("#invoice_ba_" + data.order_id).html('<span class="badge badge-warning">No Invoice</span>');
+                    }
+                }
+            });
+    });
+
+
+
+
+
 });

@@ -35,8 +35,8 @@ class ServiceMobile(http.Controller):
     # Show list of orders (show only "Fully Invoiced")
     @http.route('/service/all/order/', auth='user', website=True)
     def index_order(self, **kw):
-        # order_ids = http.request.env['sale.order'].search([])
-        order_ids = http.request.env['sale.order'].search([]).filtered(lambda r: r.invoice_status != 'invoiced')
+        order_ids = http.request.env['sale.order'].search([])
+        # order_ids = http.request.env['sale.order'].search([]).filtered(lambda r: r.invoice_status != 'invoiced')
         # for order in order_ids:
         #     logger.info(order.invoice_status)
 
@@ -114,15 +114,10 @@ class ServiceMobile(http.Controller):
             # env['sale.order.line'].search([('order_id', '=', order.id), ('line.product_uom', '=', http.request.env.ref('uom.product_uom_hour'))])
 
             sale_order_line_ids = order.order_line.search([('order_id', '=', order.id), ('product_uom.name', '=', 'Timme(ar)')])
-            # for sale_order_line in sale_order_line_ids:
-            #     sale_order_line.product_uom_qty = post.get('qty')
-            #     sale_order_line.qty_delivered = post.get('qty_delivered')
-
             if len(sale_order_line_ids) > 0:
                 sale_order_line_ids[0].product_uom_qty = post.get('qty')
                 sale_order_line_ids[0].qty_delivered = post.get('qty_delivered')
 
-            account_line = http.request.env['account.analytic.line'].search([])
             # if type(post.get('hours')) == 'int':
             if len(order.tasks_ids) > 0:
                 new_task_params = {'date': datetime.datetime.now(),
@@ -134,8 +129,6 @@ class ServiceMobile(http.Controller):
                                    'user_id': order.tasks_ids[0].user_id.id,
                                    'project_id': order.tasks_ids[0].project_id.id,
                                    }
-                logger.info(new_task_params)
-                logger.warn(new_task_params)
                 http.request.env['account.analytic.line'].create(new_task_params)
 
             # return werkzeug.utils.redirect('/service/all/order/', 302)
@@ -189,6 +182,40 @@ class ServiceMobile(http.Controller):
                     'input_attrs': {},
                 })
 
+    # Add work hour till order-project-task
+    @http.route('/service/<model("sale.order"):order>/task/', auth='user', website=True, methods=['GET', 'POST'])
+    def add_task(self, order, **post):
+        tasks = order.tasks_ids
+        if post:
+            if len(order.tasks_ids) > 0:
+                new_task_params = {'date': datetime.datetime.now(),
+                                   'employee_id': http.request.website.user_id.id,
+                                   'name': post.get('name'),
+                                   'unit_amount': float(post.get('hours')),
+                                   'account_id': order.tasks_ids[0].project_id.analytic_account_id.id,
+                                   'task_id': order.tasks_ids[0].id,
+                                   'user_id': order.tasks_ids[0].user_id.id,
+                                   'project_id': order.tasks_ids[0].project_id.id,
+                                   }
+                http.request.env['account.analytic.line'].create(new_task_params)
+            return werkzeug.utils.redirect('/service/all/order/', 302)
+        else:
+            task_objs = order.tasks_ids[0].project_id.analytic_account_id.line_ids.filtered(
+                lambda r: r.task_id.sale_order_id.name == order.name)
+
+            logger.exception('kw %s' % task_objs)
+            return http.request.render('service_mobile.view_task', {
+                'root': '/service/%s/task/' % order.id,
+                'order': order,
+                'task_objs': task_objs,
+                'date': datetime.datetime.now().strftime('%Y-%m-%d'),
+                'employee': http.request.website.user_id.name,
+                'help': {'name': 'This is help string for name'},
+                'validation': {'name': 'Warning'},
+                'input_attrs': {},
+            })
+
+
     # Update/delivery on row "levererat antal"
     # @http.route('/service/<model("sale.order"):order>/order/delivered', auth='user', website=True, methods=['GET', 'POST'])
     # def update_delivery(self, order, **post):
@@ -234,68 +261,6 @@ class ServiceMobile(http.Controller):
                 'input_attrs': {},
             })
 
-    # method: skapa fakturan. den returnerar ett id, inte objekt
-    @http.route('/service/<model("sale.order"):order>/invoice/send/', auth='user', website=True, methods=['GET', 'POST'])
-    def create_invoice(self, order, **kw):
-        new_invoice_id = order.action_invoice_create()
-        invoice = http.request.env['account.invoice'].browse(new_invoice_id)
-        template = http.request.env.ref('account.email_template_edi_invoice')
-        template.write({'email_to': order.partner_id.email})
-        template.send_mail(invoice.id, force_send=True)
-
-        return werkzeug.utils.redirect('/service/all/order/', 302)
-
-    # Add work hour till order-project-task
-    @http.route('/service/<model("sale.order"):order>/task/', auth='user', website=True, methods=['GET', 'POST'])
-    def add_task(self, order, **post):
-        tasks = order.tasks_ids
-        if post:
-            if type(post.get('hours')) == 'int':
-                new_task_params = {'date': datetime.datetime.now(),
-                                   'employee_id': http.request.website.user_id.id,
-                                   'name': post.get('name'),
-                                   'unit_amount': float(post.get('hours')),
-                                   'account_id': tasks[0].project_id.analytic_account_id.id,
-                                   'task_id': tasks[0].id,
-                                   'user_id': tasks[0].user_id.id,
-                                   'project_id': tasks[0].project_id.id,
-                                   }
-
-                http.request.env['account.analytic.line'].create(new_task_params)
-
-                # account_line = http.request.env['account.analytic.line'].search([])
-                # for task in tasks:
-                #     if task.id == account_line.task_id.id:
-                #         new_task_params = {'date': datetime.datetime.now(),
-                #                            'employee_id': http.request.website.user_id.id,
-                #                            'name': post.get('name'),
-                #                            'unit_amount': float(post.get('hours')),
-                #                            'account_id': task.project_id.analytic_account_id.id,
-                #                            'task_id': task.id,
-                #                            'user_id': task.user_id.id,
-                #                            'project_id': task.project_id.id,
-                #                            }
-                #         logger.info(new_task_params)
-                #         logger.warn(new_task_params)
-                #         http.request.env['account.analytic.line'].create(new_task_params)
-
-
-            return werkzeug.utils.redirect('/service/all/order/', 302)
-        else:
-            task_objs = order.tasks_ids[0].project_id.analytic_account_id.line_ids.filtered(
-                lambda r: r.task_id.sale_order_id.name == order.name)
-
-            logger.exception('kw %s' % task_objs)
-            return http.request.render('service_mobile.view_task', {
-                'root': '/service/%s/task/' % order.id,
-                'order': order,
-                'task_objs': task_objs,
-                'date': datetime.datetime.now().strftime('%Y-%m-%d'),
-                'employee': http.request.website.user_id.name,
-                'help': {'name': 'This is help string for name'},
-                'validation': {'name': 'Warning'},
-                'input_attrs': {},
-            })
 
     # Delete an order
     @http.route('/service/<model("sale.order"):order>/order/delete', auth='user', website=True)
@@ -306,7 +271,7 @@ class ServiceMobile(http.Controller):
 
             return http.request.render('service_mobile.index', {
                 'root': '/service/all/order/',
-                'order_ids': http.request.env['sale.order'].search([]),
+                'order_ids':http.request.env['sale.order'].search([]).filtered(lambda r: r.invoice_status != 'invoiced'),
                 'order_state': 'cancel',
                 'order.state': order.state
             })
@@ -331,7 +296,6 @@ class ServiceMobile(http.Controller):
 
     @http.route('/service/<model("sale.order"):order>/order/flag', type='json', auth="user", website=True)
     def post_flag(self, order, **kwargs):
-
         if not http.request.session.uid:
             return {'error': 'anonymous_user'}
 
@@ -345,6 +309,43 @@ class ServiceMobile(http.Controller):
                 'flag_value': order.prio,
                 'order_id': order.id,
                 }
+
+    # method: skapa fakturan. den returnerar ett id, inte objekt
+    @http.route('/service/<model("sale.order"):order>/invoice/send/', type="json", auth='user', website=True)
+    def create_invoice(self, order, **kw):
+        if not http.request.session.uid:
+            return {'error': 'anonymous_user'}
+
+        try:
+            new_invoice_id = order.action_invoice_create()
+            invoice = http.request.env['account.invoice'].browse(new_invoice_id)
+            template = http.request.env.ref('account.email_template_edi_invoice')
+            template.write({'email_to': order.partner_id.email})
+            template.send_mail(invoice.id, force_send=True)
+
+            # Invert order.prio False -> True, True -> False
+            order.invoice_status = "invoiced"
+        except:
+            return {'error': 'post_non_check'}
+
+        return {'success': 'Yes!',
+                'check_value': order.invoice_status,
+                'order_id': order.id,
+                }
+
+        # return werkzeug.utils.redirect('/service/all/order/', 302)
+
+
+    # method: skapa fakturan. den returnerar ett id, inte objekt
+    # @http.route('/service/<model("sale.order"):order>/invoice/send/', auth='user', website=True, methods=['GET', 'POST'])
+    # def create_invoice(self, order, **kw):
+    #     new_invoice_id = order.action_invoice_create()
+    #     invoice = http.request.env['account.invoice'].browse(new_invoice_id)
+    #     template = http.request.env.ref('account.email_template_edi_invoice')
+    #     template.write({'email_to': order.partner_id.email})
+    #     template.send_mail(invoice.id, force_send=True)
+    #
+    #     return werkzeug.utils.redirect('/service/all/order/', 302)
 
     # -------------------------------------------
     # VG-uppgift

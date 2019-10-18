@@ -78,17 +78,17 @@
                                         <span class="badge badge-success">
                                             <t t-esc="order.state"/>
                                         </span>
-                                        <span class="badge badge-success">
-                                            <t t-esc="order.invoice_status"/>
-                                        </span>
+<!--                                        <span class="badge badge-success">-->
+<!--                                            <t t-esc="order.invoice_status"/>-->
+<!--                                        </span>-->
                                     </t>
                                     <t t-elif="order.state == 'sent'">
                                         <span class="badge badge-info">
                                             <t t-esc="order.state"/>
                                         </span>
-                                        <span class="badge badge-info">
-                                            <t t-esc="order.invoice_status"/>
-                                        </span>
+<!--                                        <span class="badge badge-info">-->
+<!--                                            <t t-esc="order.invoice_status"/>-->
+<!--                                        </span>-->
                                     </t>
                                     <t t-elif="order.state == 'cancel'">
                                         <span class="badge badge-danger">
@@ -99,18 +99,40 @@
                                         <span class="badge badge-secondary">
                                             <t t-esc="order.state"/>
                                         </span>
-                                        <span class="badge badge-secondary">
-                                            <t t-esc="order.invoice_status"/>
-                                        </span>
+<!--                                        <span class="badge badge-secondary">-->
+<!--                                            <t t-esc="order.invoice_status"/>-->
+<!--                                        </span>-->
                                     </t>
                                     <t t-else="">
                                         <span class="badge badge-warning">
                                             <t t-esc="order.state"/>
                                         </span>
-                                        <span class="badge badge-warning">
-                                            <t t-esc="order.invoice_status"/>
-                                        </span>
+<!--                                        <span class="badge badge-warning">-->
+<!--                                            <t t-esc="order.invoice_status"/>-->
+<!--                                        </span>-->
                                     </t>
+
+                                    <div t-att-id="'prio_status_%s' % order.id">
+                                        <t t-if="order.prio">
+                                            <span class="badge badge-danger">Prio</span>
+                                        </t>
+                                        <t t-if="not order.prio">
+                                            <span class="badge badge-info">Normal/Non-Prio</span>
+                                        </t>
+                                    </div>
+
+                                    <div t-att-id="'invoice_ba_%s' % order.id">
+                                        <t t-if="order.invoice_status=='invoiced'">
+                                            <span class="badge badge-success">Invoiced</span>
+                                        </t>
+                                        <t t-elif="order.invoice_status=='to invoice'">
+                                            <span class="badge badge-info">To Invoice</span>
+                                        </t>
+                                        <t t-else="">
+                                            <span class="badge badge-warning">No Invoice</span>
+                                        </t>
+                                    </div>
+
                                 </td>
                                 <td>
                                     <t t-esc="order.amount_total"/>
@@ -134,15 +156,27 @@
                                             Flag
                                         </t>
                                     </a>
-
-                                    <!--                                    <a t-if="order.invoice_status=='to invoice'" t-att-href="'/service/%s/invoice/send' % order.id">-->
-                                    <!--                                        <span type="button" class="btn btn-primary btn-sm">-->
-                                    <!--                                            | Confirm Invoice-->
-                                    <!--                                        </span>-->
-                                    <!--                                    </a>-->
+                                    <a t-attf-style="cursor: pointer;#{order.invoice_status=='to invoice' or ''}"
+                                       t-attf-class="check fa fa-check-square #{order.invoice_status=='to invoice' or ''}"
+                                       t-attf-data-href="/service/#{slug(order)}/invoice/send">
+                                        <div t-att-id="'invoice_status_%s' % order.id">
+                                        <t t-if="order.invoice_status=='to invoice'">
+                                            <span style="color:green">Confirm Invoice Now</span>
+                                        </t>
+                                        <t t-elif="order.invoice_status=='invoiced'">
+                                            <span style="color:#999">Invoiced</span>
+                                        </t>
+                                        <t t-else="">
+                                            <span style="color:#999">No-Invoice</span>
+                                        </t>
+                                    </div>
+<!--                                        <t t-if="order.invoice_status=='to invoice'">Confirm Invoice Now</t>-->
+<!--                                        <t t-elif="order.invoice_status=='invoiced'">Invoiced</t>-->
+<!--                                        <t t-else=""> No Invoice</t>-->
+                                    </a>
                                 </td>
                                 <td>
-                                    <div t-att-id="'prio_status_%s' % order.id">
+                                    <div t-att-id="'prio_text_%s' % order.id">
                                         <t t-if="order.prio">
                                             Prio
                                         </t>
@@ -150,23 +184,34 @@
                                             Normal
                                         </t>
                                     </div>
+                                    <div t-att-id="'invoice_text_%s' % order.id">
+                                        <t t-if="order.invoice_status=='invoiced'">
+                                            Invoiced
+                                        </t>
+                                        <t t-elif="order.invoice_status=='to invoice'">
+                                            Confirm Invoice Now
+                                        </t>
+                                        <t t-else="">
+                                            No-Invoice
+                                        </t>
+                                    </div>
                                 </td>
 
                                 <td>
                                     <t t-if="order.state == 'sale'">
-                                        <span type="button" class="btn btn-info btn-sm mb-1">
+                                        <span type="button" class="btn btn-success btn-sm mb-1">
                                             <a t-att-href="'/service/%s/task' % order.id" style="color:white">
                                                 Add Task Time
                                             </a>
                                         </span>
                                     </t>
-                                    <t t-if="order.invoice_status=='to invoice'">
-                                        <span type="button" class="btn btn-info btn-sm">
-                                            <a t-att-href="'/service/%s/invoice/send' % order.id" style="color:white">
-                                                Confirm Invoice
-                                            </a>
-                                        </span>
-                                    </t>
+<!--                                    <t t-if="order.invoice_status=='to invoice'">-->
+<!--                                        <span type="button" class="btn btn-success btn-sm">-->
+<!--                                            <a t-att-href="'/service/%s/invoice/send' % order.id" style="color:white">-->
+<!--                                                Confirm Invoice-->
+<!--                                            </a>-->
+<!--                                        </span>-->
+<!--                                    </t>-->
                                 </td>
                             </tr>
                         </tbody>
@@ -449,7 +494,7 @@
                                         <th>Price exkl. tax</th>
                                         <th>Tax</th>
                                         <th>Totacl Price</th>
-                                        <th>Leverera Nu</th>
+<!--                                        <th>Leverera Nu</th>-->
                                     </tr>
                                 </thead>
                                 <tbody>
