@@ -114,26 +114,28 @@ class ServiceMobile(http.Controller):
             # env['sale.order.line'].search([('order_id', '=', order.id), ('line.product_uom', '=', http.request.env.ref('uom.product_uom_hour'))])
 
             sale_order_line_ids = order.order_line.search([('order_id', '=', order.id), ('product_uom.name', '=', 'Timme(ar)')])
-            for sale_order_line in sale_order_line_ids:
-                sale_order_line.product_uom_qty = post.get('qty')
-                # order.order_line.product_uom_qty = int(float(post.get('qty')))
-                sale_order_line.qty_delivered = post.get('qty_delivered')
-            # if len(sale_order_line_ids) > 0:
-            #     sale_order_line_ids[0].product_uom_qty = post.get('qty')
-            #     # order.order_line.product_uom_qty = int(float(post.get('qty')))
-            #     sale_order_line_ids[0].qty_delivered = post.get('qty_delivered')
+            # for sale_order_line in sale_order_line_ids:
+            #     sale_order_line.product_uom_qty = post.get('qty')
+            #     sale_order_line.qty_delivered = post.get('qty_delivered')
 
-            for task in order.tasks_ids:
+            if len(sale_order_line_ids) > 0:
+                sale_order_line_ids[0].product_uom_qty = post.get('qty')
+                sale_order_line_ids[0].qty_delivered = post.get('qty_delivered')
+
+            account_line = http.request.env['account.analytic.line'].search([])
+            # if type(post.get('hours')) == 'int':
+            if len(order.tasks_ids) > 0:
                 new_task_params = {'date': datetime.datetime.now(),
                                    'employee_id': http.request.website.user_id.id,
                                    'name': post.get('name'),
                                    'unit_amount': float(post.get('hours')),
-                                   'account_id': task.project_id.analytic_account_id.id,
-                                   'task_id': task.id,
-                                   'user_id': task.user_id.id,
-                                   'project_id': task.project_id.id,
+                                   'account_id': order.tasks_ids[0].project_id.analytic_account_id.id,
+                                   'task_id': order.tasks_ids[0].id,
+                                   'user_id': order.tasks_ids[0].user_id.id,
+                                   'project_id': order.tasks_ids[0].project_id.id,
                                    }
-
+                logger.info(new_task_params)
+                logger.warn(new_task_params)
                 http.request.env['account.analytic.line'].create(new_task_params)
 
             # return werkzeug.utils.redirect('/service/all/order/', 302)
@@ -152,7 +154,6 @@ class ServiceMobile(http.Controller):
             sale_order_line_ids = order.order_line.search(
                 [('order_id', '=', order.id), ('product_uom.name', '=', 'Timme(ar)')])
             # sale_order_line_ids = order.order_line.search([('order_id', '=', order.id),('product_uom.name', '=', http.request.env.ref('uom.product_uom_hour'))])
-            logger.info(len(order.tasks_ids))
             try:
                 task_index = order.tasks_ids[0]
             except IndexError:
@@ -247,19 +248,37 @@ class ServiceMobile(http.Controller):
     # Add work hour till order-project-task
     @http.route('/service/<model("sale.order"):order>/task/', auth='user', website=True, methods=['GET', 'POST'])
     def add_task(self, order, **post):
+        tasks = order.tasks_ids
         if post:
-            for task in order.tasks_ids:
+            if type(post.get('hours')) == 'int':
                 new_task_params = {'date': datetime.datetime.now(),
                                    'employee_id': http.request.website.user_id.id,
                                    'name': post.get('name'),
                                    'unit_amount': float(post.get('hours')),
-                                   'account_id': task.project_id.analytic_account_id.id,
-                                   'task_id': task.id,
-                                   'user_id': task.user_id.id,
-                                   'project_id': task.project_id.id,
+                                   'account_id': tasks[0].project_id.analytic_account_id.id,
+                                   'task_id': tasks[0].id,
+                                   'user_id': tasks[0].user_id.id,
+                                   'project_id': tasks[0].project_id.id,
                                    }
 
                 http.request.env['account.analytic.line'].create(new_task_params)
+
+                # account_line = http.request.env['account.analytic.line'].search([])
+                # for task in tasks:
+                #     if task.id == account_line.task_id.id:
+                #         new_task_params = {'date': datetime.datetime.now(),
+                #                            'employee_id': http.request.website.user_id.id,
+                #                            'name': post.get('name'),
+                #                            'unit_amount': float(post.get('hours')),
+                #                            'account_id': task.project_id.analytic_account_id.id,
+                #                            'task_id': task.id,
+                #                            'user_id': task.user_id.id,
+                #                            'project_id': task.project_id.id,
+                #                            }
+                #         logger.info(new_task_params)
+                #         logger.warn(new_task_params)
+                #         http.request.env['account.analytic.line'].create(new_task_params)
+
 
             return werkzeug.utils.redirect('/service/all/order/', 302)
         else:

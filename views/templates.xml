@@ -456,6 +456,7 @@
                                     <tr t-foreach="sale_order_line_ids" t-as="orderline">
                                         <td>
                                             <t t-esc="orderline_index+1"/>
+
                                         </td>
                                         <td>
                                             <t t-esc="orderline.product_id.name"/>
@@ -489,23 +490,23 @@
                                         <td>
                                             <t t-esc="orderline.price_total"/>
                                         </td>
-                                        <td>
-                                            <a t-att-href="'/service/%s/order/send' % order.id">
-                                                Delivery now
-                                            </a>
-                                        </td>
+<!--                                        <td>-->
+<!--                                            <a t-att-href="'/service/%s/order/send' % order.id">-->
+<!--                                                Delivery now-->
+<!--                                            </a>-->
+<!--                                        </td>-->
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
 
-                        <!--                        <div class="col-md-12">-->
-                        <!--                            <div class="pull-right mb16">-->
-                        <!--                                <div class="">-->
-                        <!--                                    <button id="submit_btn" class="btn btn-primary btn-lg">Update and Save</button>-->
-                        <!--                                </div>-->
-                        <!--                            </div>-->
-                        <!--                        </div>-->
+                        <div class="col-md-12">
+                            <div class="pull-right mb16">
+                                <div class="">
+                                    <button id="submit_btn" class="btn btn-primary btn-lg">Update and Save</button>
+                                </div>
+                            </div>
+                        </div>
 
                         <!--Timesheet report-->
                         <div class="form-group" t-foreach="order.tasks_ids if order.tasks_ids else ''" t-as="task">
@@ -528,13 +529,6 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!--                                    <tr t-if="order.tasks_ids != 'null'">-->
-                                    <!--                                        <span type="button" class="btn btn-info btn-sm">-->
-                                    <!--                                            <a t-att-href="'/service/%s/order' % order.id" style="color:white">-->
-                                    <!--                                                Add Task Time-->
-                                    <!--                                            </a>-->
-                                    <!--                                        </span>-->
-                                    <!--                                    </tr>-->
                                     <tr>
                                         <td>
                                             <t t-esc="len(task.project_id.analytic_account_id.line_ids.filtered(lambda r: r.task_id.sale_order_id.name == order.name))+1"/>
@@ -564,6 +558,7 @@
                                         t-as="t">
                                         <td>
                                             <t t-esc="t_index+1"/>
+<!--                                            <t t-esc="max(task.project_id.analytic_account_id.line_ids.filtered(lambda r: r.task_id.sale_order_id.name == order.name))_index-1"/>-->
                                         </td>
                                         <td>
                                             <t t-esc="t.task_id.sale_order_id.name"/>
@@ -589,31 +584,32 @@
 
                         </div>
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="pull-right">
-                                <button id="submit_btn" class="btn btn-primary btn-lg">Update and Save</button>
-                            </div>
-                        </div>
-                    </div>
+                        <!--                    <div class="row">-->
+                        <!--                        <div class="col-md-12">-->
+                        <!--                            <div class="pull-right">-->
+                        <!--                                <button id="submit_btn" class="btn btn-primary btn-lg">Update and Save</button>-->
+                        <!--                            </div>-->
+                        <!--                        </div>-->
+                        <!--                    </div>-->
                     </form>
                     <!--Timesheet report end-->
-                    <!--                            <div class="col-md-12">-->
-                    <!--                                <div t-if="task_objs != 'null'" class="pull-right">-->
-                    <!--                                    <button class="btn btn-primary btn-lg">-->
-                    <!--                                        <a t-att-href="'/service/%s/task' % order.id" style="color:white">-->
-                    <!--                                            To Add Task Time Page-->
-                    <!--                                        </a>-->
-                    <!--                                    </button>-->
-                    <!--                                </div>-->
-                    <!--                            </div>-->
-                    <div class="row">
-                        <div class="col-md-12">
-                        <a t-if="task_objs != 'null'" class="btn btn-info btn-sm"
-                           t-att-href="'/service/%s/task' % order.id">
-                            To Add Task Time Page
-                        </a></div>
-                    </div>
+                                                <div class="col-md-12">
+                                                    <div t-if="task_objs != 'null'" class="pull-right">
+                                                        <button class="btn btn-primary btn-lg">
+                                                            <a t-att-href="'/service/%s/task' % order.id" style="color:white">
+                                                                To Add Task Time Page
+                                                            </a>
+                                                        </button>
+                                                    </div>
+                                                </div>
+<!--                    <div class="row">-->
+<!--                        <div class="col-md-12 pull-right">-->
+<!--                            <a t-if="task_objs != 'null'" class="btn btn-info btn-sm"-->
+<!--                               t-att-href="'/service/%s/task' % order.id">-->
+<!--                                To Add Task Time Page-->
+<!--                            </a>-->
+<!--                        </div>-->
+<!--                    </div>-->
 
                 </div>
             </t>
