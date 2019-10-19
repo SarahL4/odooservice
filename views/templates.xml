@@ -3,8 +3,23 @@
 
         <template id="assets_frontend" inherit_id="web.assets_frontend">
             <xpath expr="." position="inside">
+<!--                <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"/>-->
                 <link rel="stylesheet" href="/service_mobile/static/src/css/site.css"/>
+                <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css"/>
+<!--                <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap.min.css"/>-->
+
+<!--                <link rel="stylesheet" href="https://code.jquery.com/jquery-3.3.1.js"/>-->
+<!--                <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"/>-->
+
+<!--                <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"/>-->
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"/>-->
+<!--<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"/>-->
+
+                <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js" />
+<!--                <script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap.min.js" />-->
+                <script type="text/javascript" src="/service_mobile/static/src/js/sort_table.js"/>
                 <script type="text/javascript" src="/service_mobile/static/src/js/service_mobile.js"/>
+
             </xpath>
         </template>
 
@@ -36,184 +51,182 @@
                         </div>
                     </div>
 
-                    <table class="table table-striped table-hover">
+                    <table class="table table-striped table-hover" id="table"
+                           data-toggle="table" data-pagination="true" data-search="true" data-filter-control="true">
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Order ID</th>
-                                <th>Customer</th>
-                                <th>Order date</th>
-                                <th>Status</th>
-                                <th>Total amount $</th>
-                                <th>Action</th>
-                                <th>Prio</th>
-                                <th>Task</th>
+                                <th id="order_id" data-sortable="true" data-field="order_id">Order ID</th>
+                                <th id="customer" data-sortable="true" data-field="customer">Customer</th>
+                                <th id="date" data-sortable="true" data-field="date">Order Date</th>
+                                <th id="status" data-sortable="true" data-field="status">Status</th>
+                                <th id="amount_total" data-sortable="true" data-field="amount_total">Total amount $</th>
+                                <th id="action" data-field="action">Action</th>
+<!--                                <th id="prio" data-sortable="true" data-field="prio">Prio</th>-->
+                                <th id="note" data-sortable="true" data-field="note">Note</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Message after order deleted successful-->
-                            <tr t-if="order_state == 'cancel'">
-                                <span class="row alert alert-success">
-                                    Order deleted successful!
-                                </span>
-                            </tr>
-
-                            <tr t-foreach="order_ids" t-as="order" t-if="order.state != 'cancel'">
-                                <td>
-                                    <t t-esc="order_index+1"/>
-                                </td>
-                                <td>
-                                    <a t-att-href="'/service/%s/order' % order.id">
-                                        <t t-esc="order.display_name"/>
-                                    </a>
-                                </td>
-                                <td>
-                                    <t t-esc="order.partner_id.name"/>
-                                </td>
-                                <td>
-                                    <t t-esc="order.date_order"/>
-                                </td>
-                                <td>
-                                    <t t-if="order.state == 'sale'">
-                                        <span class="badge badge-success">
-                                            <t t-esc="order.state"/>
-                                        </span>
-<!--                                        <span class="badge badge-success">-->
-<!--                                            <t t-esc="order.invoice_status"/>-->
-<!--                                        </span>-->
-                                    </t>
-                                    <t t-elif="order.state == 'sent'">
-                                        <span class="badge badge-info">
-                                            <t t-esc="order.state"/>
-                                        </span>
-<!--                                        <span class="badge badge-info">-->
-<!--                                            <t t-esc="order.invoice_status"/>-->
-<!--                                        </span>-->
-                                    </t>
-                                    <t t-elif="order.state == 'cancel'">
-                                        <span class="badge badge-danger">
-                                            <t t-esc="order.state"/>
-                                        </span>
-                                    </t>
-                                    <t t-elif="order.state == 'done'">
-                                        <span class="badge badge-secondary">
-                                            <t t-esc="order.state"/>
-                                        </span>
-<!--                                        <span class="badge badge-secondary">-->
-<!--                                            <t t-esc="order.invoice_status"/>-->
-<!--                                        </span>-->
-                                    </t>
-                                    <t t-else="">
-                                        <span class="badge badge-warning">
-                                            <t t-esc="order.state"/>
-                                        </span>
-<!--                                        <span class="badge badge-warning">-->
-<!--                                            <t t-esc="order.invoice_status"/>-->
-<!--                                        </span>-->
-                                    </t>
-
-                                    <div t-att-id="'prio_status_%s' % order.id">
-                                        <t t-if="order.prio">
-                                            <span class="badge badge-danger">Prio</span>
+                            <t t-foreach="order_ids" t-as="order">
+                                <tr>
+                                    <td>
+                                        <t t-esc="order_index+1"/>
+                                    </td>
+                                    <td>
+                                        <a t-att-href="'/service/%s/order' % order.id">
+                                            <t t-esc="order.display_name"/>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <t t-esc="order.partner_id.name"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="order.date_order"/>
+                                    </td>
+                                    <td>
+                                        <div t-att-id="'prio_status_%s' % order.id">
+                                            <t t-if="order.prio">
+                                                <span class="badge badge-danger">Prio</span>
+                                            </t>
+                                            <t t-if="not order.prio">
+                                                <span class="badge badge-info">Normal/Non-Prio</span>
+                                            </t>
+                                        </div>
+                                        <t t-if="order.state == 'sale'">
+                                            <span class="badge badge-success">
+                                                <t t-esc="order.state"/>
+                                            </span>
                                         </t>
-                                        <t t-if="not order.prio">
-                                            <span class="badge badge-info">Normal/Non-Prio</span>
+                                        <t t-elif="order.state == 'sent'">
+                                            <span class="badge badge-info">
+                                                <t t-esc="order.state"/>
+                                            </span>
                                         </t>
-                                    </div>
-
-                                    <div t-att-id="'invoice_ba_%s' % order.id">
-                                        <t t-if="order.invoice_status=='invoiced'">
-                                            <span class="badge badge-success">Invoiced</span>
+                                        <t t-elif="order.state == 'cancel'">
+                                            <span class="badge badge-danger">
+                                                <t t-esc="order.state"/>
+                                            </span>
                                         </t>
-                                        <t t-elif="order.invoice_status=='to invoice'">
-                                            <span class="badge badge-info">To Invoice</span>
+                                        <t t-elif="order.state == 'done'">
+                                            <span class="badge badge-secondary">
+                                                <t t-esc="order.state"/>
+                                            </span>
                                         </t>
                                         <t t-else="">
-                                            <span class="badge badge-warning">No Invoice</span>
+                                            <span class="badge badge-warning">
+                                                <t t-esc="order.state"/>
+                                            </span>
                                         </t>
-                                    </div>
 
-                                </td>
-                                <td>
-                                    <t t-esc="order.amount_total"/>
-                                </td>
-                                <td>
-                                    <a t-att-href="'/service/%s/order/delete' % order.id">
-                                        <i class="fa fa-trash"/>
-                                    </a>
-                                    |
-                                    <a t-att-href="'/service/%s/order/send' % order.id">
-                                        <i class="fa fa-paper-plane"/>
-                                    </a>
-                                    |
-                                    <a t-attf-style="cursor: pointer;#{order.state == 'sent' and 'color:#999;' or ''}"
-                                       t-attf-class="flag fa fa-flag #{not order.state == 'sent' or ''}"
-                                       t-attf-data-href="/service/#{slug(order)}/order/flag">
-                                        <t t-if="order.state == 'sent'">
-                                            Flagged
-                                        </t>
-                                        <t t-if="order.state != 'sent'">
-                                            Flag
-                                        </t>
-                                    </a>
-                                    <a t-attf-style="cursor: pointer;#{order.invoice_status=='to invoice' or ''}"
-                                       t-attf-class="check fa fa-check-square #{order.invoice_status=='to invoice' or ''}"
-                                       t-attf-data-href="/service/#{slug(order)}/invoice/send">
-                                        <div t-att-id="'invoice_status_%s' % order.id">
-                                        <t t-if="order.invoice_status=='to invoice'">
-                                            <span style="color:green">Confirm Invoice Now</span>
-                                        </t>
-                                        <t t-elif="order.invoice_status=='invoiced'">
-                                            <span style="color:#999">Invoiced</span>
-                                        </t>
-                                        <t t-else="">
-                                            <span style="color:#999">No-Invoice</span>
-                                        </t>
-                                    </div>
-<!--                                        <t t-if="order.invoice_status=='to invoice'">Confirm Invoice Now</t>-->
-<!--                                        <t t-elif="order.invoice_status=='invoiced'">Invoiced</t>-->
-<!--                                        <t t-else=""> No Invoice</t>-->
-                                    </a>
-                                </td>
-                                <td>
-                                    <div t-att-id="'prio_text_%s' % order.id">
-                                        <t t-if="order.prio">
-                                            Prio
-                                        </t>
-                                        <t t-if="not order.prio">
-                                            Normal
-                                        </t>
-                                    </div>
-                                    <div t-att-id="'invoice_text_%s' % order.id">
-                                        <t t-if="order.invoice_status=='invoiced'">
-                                            Invoiced
-                                        </t>
-                                        <t t-elif="order.invoice_status=='to invoice'">
-                                            Confirm Invoice Now
-                                        </t>
-                                        <t t-else="">
-                                            No-Invoice
-                                        </t>
-                                    </div>
-                                </td>
+                                        <div t-att-id="'invoice_ba_%s' % order.id">
+                                            <t t-if="order.invoice_status=='invoiced'">
+                                                <span class="badge badge-success">Invoiced</span>
+                                            </t>
+                                            <t t-elif="order.invoice_status=='to invoice'">
+                                                <span class="badge badge-danger">To Invoice</span>
+                                            </t>
+                                            <t t-else="">
+                                                <span class="badge badge-warning">No Invoice</span>
+                                            </t>
+                                        </div>
 
-                                <td>
-                                    <t t-if="order.state == 'sale'">
-                                        <span type="button" class="btn btn-success btn-sm mb-1">
-                                            <a t-att-href="'/service/%s/task' % order.id" style="color:white">
-                                                Add Task Time
-                                            </a>
-                                        </span>
-                                    </t>
-<!--                                    <t t-if="order.invoice_status=='to invoice'">-->
-<!--                                        <span type="button" class="btn btn-success btn-sm">-->
-<!--                                            <a t-att-href="'/service/%s/invoice/send' % order.id" style="color:white">-->
-<!--                                                Confirm Invoice-->
-<!--                                            </a>-->
-<!--                                        </span>-->
-<!--                                    </t>-->
-                                </td>
-                            </tr>
+                                    </td>
+                                    <td>
+                                        <t t-esc="order.amount_total"/>
+                                    </td>
+                                    <td>
+                                        <t t-if="order.state != 'cancel'">
+                                        <a t-att-href="'/service/%s/order/delete' % order.id">
+                                            <i class="fa fa-trash"/>
+                                        </a>
+                                        </t>
+                                        |
+                                        <a t-att-href="'/service/%s/order/send' % order.id">
+                                            <i class="fa fa-paper-plane"/>
+                                        </a>
+                                        |
+                                        <a t-attf-style="cursor: pointer;#{order.state == 'sent' and 'color:#999;' or ''}"
+                                           t-attf-class="flag fa fa-flag #{not order.state == 'sent' or ''}"
+                                           t-attf-data-href="/service/#{slug(order)}/order/flag">
+                                            <t t-if="order.state == 'sent'">
+                                                Flagged
+                                            </t>
+                                            <t t-if="order.state != 'sent'">
+                                                Flag
+                                            </t>
+                                        </a>
+                                        |
+                                        <a t-attf-style="cursor: pointer;#{order.invoice_status=='to invoice'  or ''}"
+                                           t-attf-class="check fa fa-check-square #{order.invoice_status=='to invoice' or ''}"
+                                           t-attf-data-href="/service/#{slug(order)}/invoice/send">
+                                            <div t-att-id="'invoice_status_%s' % order.id">
+                                                <t t-if="order.invoice_status=='to invoice'">
+                                                    <span style="color:green">Confirm Invoice Now</span>
+                                                </t>
+                                                <t t-elif="order.invoice_status=='invoiced'">
+                                                    <span style="color:#999">Invoiced</span>
+                                                </t>
+                                                <t t-else="">
+                                                    <span style="color:#999">No-Invoice  </span>
+                                                </t>
+                                            </div>
+                                        </a>
+<!--                                        <t t-if="order.state == 'sale'">-->
+<!--                                            <span type="button" class="btn btn-success btn-sm mb-1">-->
+<!--                                                <a t-att-href="'/service/%s/task' % order.id" style="color:white">-->
+<!--                                                    Add Task Time-->
+<!--                                                </a>-->
+<!--                                            </span>-->
+<!--                                        </t>-->
+                                        |
+                                        <t t-if="order.state == 'sale'">
+                                        <a t-att-href="'/service/%s/task' % order.id">
+                                            <i class="fa fa-calendar"/>Add Task Time
+                                        </a></t>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <t t-if="order.state=='sent'">
+                                                Wait for customer confirm order |
+                                            </t>
+                                            <t t-if="order.state=='sale' and order.invoice_status=='no'">
+                                                wait for delivery time and confirm invoice |
+                                            </t>
+                                        </div>
+                                        <div t-att-id="'prio_text_%s' % order.id">
+                                            <t t-if="order.prio">
+                                                Prio |
+                                            </t>
+                                            <t t-if="not order.prio">
+                                                Normal |
+                                            </t>
+                                        </div>
+                                        <div t-att-id="'invoice_text_%s' % order.id">
+                                            <t t-if="order.invoice_status=='invoiced'">
+                                                Invoiced
+                                            </t>
+                                            <t t-elif="order.invoice_status=='to invoice'">
+                                                Confirm Invoice Now
+                                            </t>
+                                            <t t-else="">
+                                                No-Invoice
+                                            </t>
+                                        </div>
+                                    </td>
+
+<!--                                    <td>-->
+<!--                                        <t t-if="order.state == 'sale'">-->
+<!--                                            <span type="button" class="btn btn-success btn-sm mb-1">-->
+<!--                                                <a t-att-href="'/service/%s/task' % order.id" style="color:white">-->
+<!--                                                    Add Task Time-->
+<!--                                                </a>-->
+<!--                                            </span>-->
+<!--                                        </t>-->
+<!--                                    </td>-->
+                                </tr>
+                            </t>
+
+
                         </tbody>
                     </table>
                 </div>
@@ -494,7 +507,7 @@
                                         <th>Price exkl. tax</th>
                                         <th>Tax</th>
                                         <th>Totacl Price</th>
-<!--                                        <th>Leverera Nu</th>-->
+                                        <!--                                        <th>Leverera Nu</th>-->
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -535,11 +548,11 @@
                                         <td>
                                             <t t-esc="orderline.price_total"/>
                                         </td>
-<!--                                        <td>-->
-<!--                                            <a t-att-href="'/service/%s/order/send' % order.id">-->
-<!--                                                Delivery now-->
-<!--                                            </a>-->
-<!--                                        </td>-->
+                                        <!--                                        <td>-->
+                                        <!--                                            <a t-att-href="'/service/%s/order/send' % order.id">-->
+                                        <!--                                                Delivery now-->
+                                        <!--                                            </a>-->
+                                        <!--                                        </td>-->
                                     </tr>
                                 </tbody>
                             </table>
@@ -554,7 +567,7 @@
                         </div>
 
                         <!--Timesheet report-->
-                        <div class="form-group" t-foreach="order.tasks_ids if order.tasks_ids else ''" t-as="task">
+                        <div class="form-group" t-foreach="order.tasks_ids" t-as="task">
                             <label class="col-md-3 col-sm-4 control-label">Task</label>
                             <div class="col-md-7 col-sm-8">
                                 <p class="form-control-static" name="taskID" t-esc="task.name">
@@ -603,7 +616,7 @@
                                         t-as="t">
                                         <td>
                                             <t t-esc="t_index+1"/>
-<!--                                            <t t-esc="max(task.project_id.analytic_account_id.line_ids.filtered(lambda r: r.task_id.sale_order_id.name == order.name))_index-1"/>-->
+                                            <!--                                            <t t-esc="max(task.project_id.analytic_account_id.line_ids.filtered(lambda r: r.task_id.sale_order_id.name == order.name))_index-1"/>-->
                                         </td>
                                         <td>
                                             <t t-esc="t.task_id.sale_order_id.name"/>
@@ -638,23 +651,23 @@
                         <!--                    </div>-->
                     </form>
                     <!--Timesheet report end-->
-                                                <div class="col-md-12">
-                                                    <div t-if="task_objs != 'null'" class="pull-right">
-                                                        <button class="btn btn-primary btn-lg">
-                                                            <a t-att-href="'/service/%s/task' % order.id" style="color:white">
-                                                                To Add Task Time Page
-                                                            </a>
-                                                        </button>
-                                                    </div>
-                                                </div>
-<!--                    <div class="row">-->
-<!--                        <div class="col-md-12 pull-right">-->
-<!--                            <a t-if="task_objs != 'null'" class="btn btn-info btn-sm"-->
-<!--                               t-att-href="'/service/%s/task' % order.id">-->
-<!--                                To Add Task Time Page-->
-<!--                            </a>-->
-<!--                        </div>-->
-<!--                    </div>-->
+                    <div class="col-md-12">
+                        <div t-if="task_objs != 'null'" class="pull-right">
+                            <button class="btn btn-primary btn-lg">
+                                <a t-att-href="'/service/%s/task' % order.id" style="color:white">
+                                    To Add Task Time Page
+                                </a>
+                            </button>
+                        </div>
+                    </div>
+                    <!--                    <div class="row">-->
+                    <!--                        <div class="col-md-12 pull-right">-->
+                    <!--                            <a t-if="task_objs != 'null'" class="btn btn-info btn-sm"-->
+                    <!--                               t-att-href="'/service/%s/task' % order.id">-->
+                    <!--                                To Add Task Time Page-->
+                    <!--                            </a>-->
+                    <!--                        </div>-->
+                    <!--                    </div>-->
 
                 </div>
             </t>

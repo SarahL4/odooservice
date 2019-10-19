@@ -19,6 +19,7 @@ class sale_order(models.Model):
     _inherit = "sale.order"
 
     prio = fields.Boolean(string="Priority", default=False)
+    sorted = fields.Boolean(string="Sorted", default=False)
 
     @api.one
     def set_template(self, template_id):

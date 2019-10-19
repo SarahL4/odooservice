@@ -33,13 +33,10 @@ logger = logging.getLogger(__name__)
 
 class ServiceMobile(http.Controller):
     # Show list of orders (show only "Fully Invoiced")
-    @http.route('/service/all/order/', auth='user', website=True)
+    @http.route('/service/all/order/',auth='user', website=True)
     def index_order(self, **kw):
         order_ids = http.request.env['sale.order'].search([])
         # order_ids = http.request.env['sale.order'].search([]).filtered(lambda r: r.invoice_status != 'invoiced')
-        # for order in order_ids:
-        #     logger.info(order.invoice_status)
-
         return http.request.render('service_mobile.index', {
             'root': '/service/all/order/',
             'order_ids': order_ids
@@ -266,20 +263,25 @@ class ServiceMobile(http.Controller):
     @http.route('/service/<model("sale.order"):order>/order/delete', auth='user', website=True)
     def delete_order(self, order, **kw):
         if order.state != 'cancel':
-            order_state: 'cancel'
             order.state = 'cancel'
-
-            return http.request.render('service_mobile.index', {
-                'root': '/service/all/order/',
-                'order_ids':http.request.env['sale.order'].search([]).filtered(lambda r: r.invoice_status != 'invoiced'),
-                'order_state': 'cancel',
-                'order.state': order.state
-            })
-        else:
             order.unlink()
-            order_state: 'cancel'
-            order.state = 'cancel'
             return werkzeug.utils.redirect('/service/all/order/', 302)
+
+        # if order.state != 'cancel':
+        #     order_state: 'cancel'
+        #     order.state = 'cancel'
+        #
+        #     return http.request.render('service_mobile.index', {
+        #         'root': '/service/all/order/',
+        #         'order_ids':http.request.env['sale.order'].search([]).filtered(lambda r: r.invoice_status != 'invoiced'),
+        #         'order_state': 'cancel',
+        #         'order.state': order.state
+        #     })
+        # else:
+        #     order.unlink()
+        #     order_state: 'cancel'
+        #     order.state = 'cancel'
+        #     return werkzeug.utils.redirect('/service/all/order/', 302)
 
     # Send order
     @http.route('/service/<model("sale.order"):order>/order/send', auth='user')
@@ -310,6 +312,24 @@ class ServiceMobile(http.Controller):
                 'order_id': order.id,
                 }
 
+    # @http.route('/service/order/sort_amount',type="json", auth="user", website=True)
+    # def sort_amount(self, **kwargs):
+    #
+    #     # order_ids = http.request.env['sale.order'].search([]).sorted(key=lambda r: r.amount_total, reverse=True)
+    #     order_ids = http.request.env['sale.order'].search([])
+    #     order_ids_sorted= False
+    #     try:
+    #         # order_ids = http.request.env['sale.order'].search([])
+    #         order_ids_sorted = not order_ids_sorted
+    #     except:
+    #         return {'error': 'sort_amount not works. Sad!:('}
+    #
+    #     return {'success': 'Yes!',
+    #             'order_ids_sorted': order_ids_sorted,
+    #             'order_ids': order_ids,
+    #             }
+
+
     # method: skapa fakturan. den returnerar ett id, inte objekt
     @http.route('/service/<model("sale.order"):order>/invoice/send/', type="json", auth='user', website=True)
     def create_invoice(self, order, **kw):
@@ -334,7 +354,6 @@ class ServiceMobile(http.Controller):
                 }
 
         # return werkzeug.utils.redirect('/service/all/order/', 302)
-
 
     # method: skapa fakturan. den returnerar ett id, inte objekt
     # @http.route('/service/<model("sale.order"):order>/invoice/send/', auth='user', website=True, methods=['GET', 'POST'])
