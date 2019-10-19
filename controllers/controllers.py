@@ -35,8 +35,8 @@ class ServiceMobile(http.Controller):
     # Show list of orders (show only "Fully Invoiced")
     @http.route('/service/all/order/',auth='user', website=True)
     def index_order(self, **kw):
-        order_ids = http.request.env['sale.order'].search([])
-        # order_ids = http.request.env['sale.order'].search([]).filtered(lambda r: r.invoice_status != 'invoiced')
+        # order_ids = http.request.env['sale.order'].search([])
+        order_ids = http.request.env['sale.order'].search([]).filtered(lambda r: r.invoice_status != 'invoiced')
         return http.request.render('service_mobile.index', {
             'root': '/service/all/order/',
             'order_ids': order_ids
@@ -92,6 +92,8 @@ class ServiceMobile(http.Controller):
             'root': '/service/all/result/',
             'order_ids_hour': order_ids_hour,
             'order_ids_piece': order_ids_piece,
+            'product_uom_hour': order_ids_hour[0].product_uom.name,
+            'product_uom_piece': order_ids_piece[0].product_uom.name,
             'qty_total': qty_total,
             'price_subtotal': price_subtotal,
             'price_tax': price_tax,

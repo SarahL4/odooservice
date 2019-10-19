@@ -148,13 +148,7 @@ odoo.define('service_mobile.index', function (require) {
   pagination: true,
   search: true,
   })
-//  $('#min, #max').keyup( function() {
-//            table.draw();
-//        } );
-//$('#table').on('keyup',function(ev){
-//var rex=new RegExp($(this).val(),'i');
-//$('.search')
-//})
+
 //     Sort by order.amount_total
 //    $('.sort_amount').on('click', function (ev) {
 //
