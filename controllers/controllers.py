@@ -36,7 +36,7 @@ class ServiceMobile(http.Controller):
     @http.route('/service/all/order/',auth='user', website=True)
     def index_order(self, **kw):
         # order_ids = http.request.env['sale.order'].search([])
-        order_ids = http.request.env['sale.order'].search([]).filtered(lambda r: r.invoice_status != 'invoiced')
+        order_ids = http.request.env['sale.order'].search([]).filtered(lambda r: r.invoice_status != 'invoiced' and r.state != 'cancel')
         return http.request.render('service_mobile.index', {
             'root': '/service/all/order/',
             'order_ids': order_ids
@@ -117,25 +117,12 @@ class ServiceMobile(http.Controller):
                 sale_order_line_ids[0].product_uom_qty = post.get('qty')
                 sale_order_line_ids[0].qty_delivered = post.get('qty_delivered')
 
-            # if type(post.get('hours')) == 'int':
-            if len(order.tasks_ids) > 0:
-                new_task_params = {'date': datetime.datetime.now(),
-                                   'employee_id': http.request.website.user_id.id,
-                                   'name': post.get('name'),
-                                   'unit_amount': float(post.get('hours')),
-                                   'account_id': order.tasks_ids[0].project_id.analytic_account_id.id,
-                                   'task_id': order.tasks_ids[0].id,
-                                   'user_id': order.tasks_ids[0].user_id.id,
-                                   'project_id': order.tasks_ids[0].project_id.id,
-                                   }
-                http.request.env['account.analytic.line'].create(new_task_params)
-
             # return werkzeug.utils.redirect('/service/all/order/', 302)
             return http.request.render('service_mobile.view_order', {
                 'root': '/service/%s/order/' % order.id,
                 'order': order,
                 'date': datetime.datetime.now().strftime('%Y-%m-%d'),
-                'employee': http.request.website.user_id.name,
+                'employee': http.request.env['hr.employee'].search([('user_id','=',http.request.session.uid)]),
                 'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
                 'sale_order_line_ids': sale_order_line_ids,
                 'help': {'name': 'This is help string for name'},
@@ -162,7 +149,7 @@ class ServiceMobile(http.Controller):
                     'sale_order_line_ids': sale_order_line_ids,
                     'task_objs': task_objs,
                     'date': datetime.datetime.now().strftime('%Y-%m-%d'),
-                    'employee': http.request.website.user_id.name,
+                    'employee': http.request.env['hr.employee'].search([('user_id','=',http.request.session.uid)]),
                     'help': {'name': 'This is help string for name'},
                     'validation': {'name': 'Warning'},
                     'input_attrs': {},
@@ -175,7 +162,7 @@ class ServiceMobile(http.Controller):
                     'sale_order_line_ids': sale_order_line_ids,
                     'task_objs': task_index,
                     'date': datetime.datetime.now().strftime('%Y-%m-%d'),
-                    'employee': http.request.website.user_id.name,
+                    'employee': http.request.env['hr.employee'].search([('user_id','=',http.request.session.uid)]),
                     'help': {'name': 'This is help string for name'},
                     'validation': {'name': 'Warning'},
                     'input_attrs': {},
@@ -188,16 +175,18 @@ class ServiceMobile(http.Controller):
         if post:
             if len(order.tasks_ids) > 0:
                 new_task_params = {'date': datetime.datetime.now(),
-                                   'employee_id': http.request.website.user_id.id,
+                                   # 'employee_id': http.request.website.user_id.id,
+                                   'employee_id': http.request.env['hr.employee'].search([('user_id','=',http.request.session.uid)])[0].id,
                                    'name': post.get('name'),
                                    'unit_amount': float(post.get('hours')),
                                    'account_id': order.tasks_ids[0].project_id.analytic_account_id.id,
                                    'task_id': order.tasks_ids[0].id,
-                                   'user_id': order.tasks_ids[0].user_id.id,
+                                   'user_id': http.request.session.uid,
+                                   # 'user_id': order.tasks_ids[0].user_id.id,
                                    'project_id': order.tasks_ids[0].project_id.id,
                                    }
                 http.request.env['account.analytic.line'].create(new_task_params)
-            return werkzeug.utils.redirect('/service/all/order/', 302)
+            return werkzeug.utils.redirect('/service/%s/order/' % order.id, 302)
         else:
             task_objs = order.tasks_ids[0].project_id.analytic_account_id.line_ids.filtered(
                 lambda r: r.task_id.sale_order_id.name == order.name)
@@ -208,34 +197,19 @@ class ServiceMobile(http.Controller):
                 'order': order,
                 'task_objs': task_objs,
                 'date': datetime.datetime.now().strftime('%Y-%m-%d'),
-                'employee': http.request.website.user_id.name,
+                'employee': http.request.env['hr.employee'].search([('user_id','=',http.request.session.uid)]),
                 'help': {'name': 'This is help string for name'},
                 'validation': {'name': 'Warning'},
                 'input_attrs': {},
             })
 
+    # Update/delivery on row "levererat antal" -> Deliver Now
+    @http.route('/service/<model("sale.order.line"):order_line>/line/deliver', auth='user', website=True)
+    def update_delivery(self, order_line, **kw):
+        order_line.qty_delivered = order_line.product_uom_qty
+        order_url='/service/%s/order/' % order_line.order_id.id
 
-    # Update/delivery on row "levererat antal"
-    # @http.route('/service/<model("sale.order"):order>/order/delivered', auth='user', website=True, methods=['GET', 'POST'])
-    # def update_delivery(self, order, **post):
-    #     if post:
-    #         order.note = post.get('note')
-    #         order.prio = post.get('prio')
-    #
-    #         line_ids = order.order_line.filtered(
-    #             lambda line: line.product_uom == http.request.env.ref('uom.product_uom_hour'))
-    #         if len(line_ids) > 0:
-    #             line_ids[0].product_uom_qty = post.get('qty')
-    #         return self.index_order()
-    #     else:
-    #         return http.request.render('service_mobile.view_order', {
-    #             'root': '/service/%s/order/' % order.id,
-    #             'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
-    #             'order': order,
-    #             'help': {'name': 'This is help string for name'},
-    #             'validation': {'name': 'Warning'},
-    #             'input_attrs': {},
-    #         })
+        return werkzeug.utils.redirect(order_url, 302)
 
     # Create an new order
     @http.route('/service/order/create', auth='user', website=True, methods=['GET', 'POST'])
@@ -250,7 +224,6 @@ class ServiceMobile(http.Controller):
 
             return werkzeug.utils.redirect('/service/all/order/', 302)
         else:
-
             return http.request.render('service_mobile.create_order', {
                 'root': '/service/order/create',
                 'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
@@ -259,7 +232,6 @@ class ServiceMobile(http.Controller):
                 'validation': {'name': 'Warning'},
                 'input_attrs': {},
             })
-
 
     # Delete an order
     @http.route('/service/<model("sale.order"):order>/order/delete', auth='user', website=True)
@@ -298,6 +270,48 @@ class ServiceMobile(http.Controller):
 
         return werkzeug.utils.redirect('/service/all/order', 302)
 
+    # F7 Show order's images: /service/%s/images' % order.id
+    @http.route('/service/<model("sale.order"):order>/images', auth='user', website=True, methods=['GET', 'POST'])
+    def order_images(self, order, **post):
+        if post:
+            # Upload file
+            if post.get('ufile'):
+                ufile = post.get('ufile')
+                file_datas_bytes = ufile.read()
+                file_datas_binary = base64.b64encode(file_datas_bytes)
+                logger.warn("Bytes data: %s" % file_datas_bytes[:100])
+                logger.warn("Binary data: %s" % file_datas_binary[:100])
+
+                current_datetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                attachment_params = {
+                    'name': '%s %s' % (ufile.name, current_datetime),
+                    'type': 'binary',
+                    'datas': file_datas_binary,
+                    'datas_fname': ufile.filename,
+                    'res_model': 'sale.order',
+                    'res_id': order.id,
+                    'mimetype': ufile.mimetype,
+                }
+                attachment_new = http.request.env['ir.attachment'].create(attachment_params)
+                order_url = '/service/%s/images/' % order.id
+                return werkzeug.utils.redirect(order_url, 302)
+                # return werkzeug.utils.redirect('/service/all/order', 302)
+        else:
+            order_attachment_ids = http.request.env['ir.attachment'].search([('res_model', '=', 'sale.order'),('res_id', '=', order.id)])
+            return http.request.render('service_mobile.order_images', {
+                'root': '/service/%s/images/' % order.id,
+                'order': order,
+                'order_attachment_ids': order_attachment_ids,
+                'help': {'name': 'This is help string for name'},
+                'validation': {'name': 'Warning'},
+                'message': {'ufile': ''},
+                'input_attrs': {},
+            })
+
+        # order_url='/service/%s/order/' % order_line.order_id.id
+
+        # return werkzeug.utils.redirect(order_url, 302)
+
     @http.route('/service/<model("sale.order"):order>/order/flag', type='json', auth="user", website=True)
     def post_flag(self, order, **kwargs):
         if not http.request.session.uid:
@@ -314,24 +328,6 @@ class ServiceMobile(http.Controller):
                 'order_id': order.id,
                 }
 
-    # @http.route('/service/order/sort_amount',type="json", auth="user", website=True)
-    # def sort_amount(self, **kwargs):
-    #
-    #     # order_ids = http.request.env['sale.order'].search([]).sorted(key=lambda r: r.amount_total, reverse=True)
-    #     order_ids = http.request.env['sale.order'].search([])
-    #     order_ids_sorted= False
-    #     try:
-    #         # order_ids = http.request.env['sale.order'].search([])
-    #         order_ids_sorted = not order_ids_sorted
-    #     except:
-    #         return {'error': 'sort_amount not works. Sad!:('}
-    #
-    #     return {'success': 'Yes!',
-    #             'order_ids_sorted': order_ids_sorted,
-    #             'order_ids': order_ids,
-    #             }
-
-
     # method: skapa fakturan. den returnerar ett id, inte objekt
     @http.route('/service/<model("sale.order"):order>/invoice/send/', type="json", auth='user', website=True)
     def create_invoice(self, order, **kw):
@@ -341,12 +337,18 @@ class ServiceMobile(http.Controller):
         try:
             new_invoice_id = order.action_invoice_create()
             invoice = http.request.env['account.invoice'].browse(new_invoice_id)
-            template = http.request.env.ref('account.email_template_edi_invoice')
-            template.write({'email_to': order.partner_id.email})
-            template.send_mail(invoice.id, force_send=True)
 
-            # Invert order.prio False -> True, True -> False
-            order.invoice_status = "invoiced"
+            if invoice.state != 'cancel' and order.state =='sale' and order.state !='cancel':
+                if invoice.state == 'draft':
+                    # Customer can pay now
+                    invoice.state = 'open'
+
+                template = http.request.env.ref('account.email_template_edi_invoice')
+                template.write({'email_to':invoice.partner_id.email})
+                template.send_mail(invoice.id, force_send=True)
+
+            if order.state != 'cancel':
+                order.invoice_status = "invoiced"
         except:
             return {'error': 'post_non_check'}
 
@@ -367,6 +369,7 @@ class ServiceMobile(http.Controller):
     #     template.send_mail(invoice.id, force_send=True)
     #
     #     return werkzeug.utils.redirect('/service/all/order/', 302)
+
 
     # -------------------------------------------
     # VG-uppgift
