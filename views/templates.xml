@@ -13,6 +13,7 @@
         </template>
 
         <!-- Mobile website layout-->
+<!--    <template id="web_layout" inherit_id="web.layout">-->
     <template id="web_layout" inherit_id="web.layout">
       <xpath expr="//head" position="inside">
           <title>Kims Faktureringsmaskin</title>
@@ -26,58 +27,207 @@
       </xpath>
     </template>
 
-        <!--Show list of orders by mobile layout-->
-<!--        <template id="index">-->
-<!--            <t t-call="web_layout">-->
-<!--                <div class="service_mobile table-wrapper">-->
-<!--                    <div class="table-title">-->
-<!--                        <div class="row">-->
-<!--                            <div class="col-sm-12">-->
-<!--                                <a class="d-inline mr-1" t-att-href="'/service/all/order'" style="color:white;">-->
-<!--                                    <h2 class="d-inline mr-1">-->
-<!--                                        <i class="fa fa-home"></i>-->
-<!--                                        Orders-->
-<!--                                    </h2>-->
-<!--                                </a>-->
-<!--                                <a t-att-href="'/service/order/create'" class="ml-1">-->
-<!--                                    <h2 class="d-inline">Create New</h2>-->
-<!--                                </a>-->
-<!--                                |-->
-<!--                                <a t-att-href="'/service/all/result'" class="ml-1" style="font:16px">-->
-<!--                                    <h2 class="d-inline">Order Result</h2>-->
-<!--                                </a>-->
-<!--                                <a t-att-href="'/service/all/project'" class="pull-right mt-1" style="color:white;">-->
-<!--                                    <p class="d-inline">Projects</p>-->
-<!--                                </a>-->
+<!--        Customize whole page layout-->
+<!--<template id="service_mobile_layout"  inherit_id="portal.frontend_layout">-->
+<!--        <t t-call="web.layout">-->
+<!--            <t t-set="head_website">-->
+<!--                <script type="text/javascript">-->
+<!--                    odoo.session_info = {-->
+<!--                        is_admin: <t t-esc="json.dumps(request.env.user._is_admin())"/>,-->
+<!--                        is_system: <t t-esc="json.dumps(request.env.user._is_system())"/>,-->
+<!--                        is_website_user: <t t-esc="json.dumps(request.env.user._is_public())"/>,-->
+<!--                        user_id: <t t-esc="json.dumps(request.env.user.id)"/>,-->
+<!--                        is_frontend: true,-->
+<!--                        translationURL: '/website/translations',-->
+<!--                    };-->
+<!--                </script>-->
+
+<!--                <t t-call-assets="web.assets_common" t-js="false"/>-->
+<!--                <t t-call-assets="web.assets_frontend" t-js="false"/>-->
+
+<!--                <t t-call-assets="web.assets_common" t-css="false"/>-->
+<!--                <t t-call-assets="web.assets_frontend" t-css="false"/>-->
+<!--            </t>-->
+<!--            <t t-set="head" t-value="head_website + (head or '')"/>-->
+
+<!--            <t t-set="direction" t-value="request.env['res.lang'].search([('code', '=', request.env.lang)]).direction"/>-->
+
+<!--            <div id="wrapwrap" t-attf-class="#{pageName or ''} #{direction == 'rtl' and 'o_rtl' or ''} #{'o_portal' if is_portal else ''}">-->
+<!--                <header>-->
+<!--                    <nav class="navbar navbar-expand-md navbar-light bg-light">-->
+<!--                        <div class="container">-->
+<!--                            <a href="/" class="navbar-brand logo">-->
+<!--                                <img t-att-src="'/logo.png?company=%s' % res_company.id" t-att-alt="'Logo of %s' % res_company.name" t-att-title="res_company.name"/>-->
+<!--                            </a>-->
+<!--                            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#top_menu_collapse">-->
+<!--                                <span class="navbar-toggler-icon"/>-->
+<!--                            </button>-->
+<!--                            <div class="collapse navbar-collapse" id="top_menu_collapse">-->
+<!--                                &lt;!&ndash; FIXME We want menu to open to the right by default (except cases handled in JS) &ndash;&gt;-->
+<!--                                <ul class="nav navbar-nav ml-auto text-right" id="top_menu">-->
+<!--                                    <li class="nav-item divider" t-ignore="true" t-if="not user_id._is_public()"/>-->
+<!--                                    <li class="nav-item dropdown" t-ignore="true" t-if="not user_id._is_public()">-->
+<!--                                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">-->
+<!--                                            <b>-->
+<!--                                                <span t-esc="user_id.name[:23] + '...' if user_id.name and len(user_id.name) &gt; 25 else user_id.name"/>-->
+<!--                                            </b>-->
+<!--                                        </a>-->
+<!--                                        <div class="dropdown-menu js_usermenu" role="menu">-->
+<!--                                            <a id="o_logout" class="dropdown-item" t-attf-href="/web/session/logout?redirect=/" role="menuitem">Logout</a>-->
+<!--                                        </div>-->
+<!--                                    </li>-->
+<!--                                </ul>-->
 <!--                            </div>-->
 <!--                        </div>-->
-<!--                    </div>-->
+<!--                    </nav>-->
+<!--                </header>-->
+<!--                <main>-->
+<!--                    <t t-raw="0"/>-->
+<!--                </main>-->
+<!--&lt;!&ndash;                <footer class="bg-light o_footer">&ndash;&gt;-->
+<!--&lt;!&ndash;                    <div class="container mt16 mb16" id="footer">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <div class="float-right mb16" t-ignore="true" t-if="not editable">&ndash;&gt;-->
+<!--&lt;!&ndash;                            Powered by <a target="_blank" href="http://www.odoo.com?utm_source=db&amp;utm_medium=portal">Odoo</a>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                </footer>&ndash;&gt;-->
+<!--            </div>-->
 
-<!--                    <table class="table table-striped table-hover" id="table">-->
-<!--                        <thead>-->
-<!--                            <tr>-->
-<!--                                <th>#</th>-->
-<!--                                <th id="order_id" data-sortable="true" data-field="order_id">Order ID</th>-->
-<!--                            </tr>-->
-<!--                        </thead>-->
-<!--                        <tbody>-->
-<!--                            <t t-foreach="order_ids" t-as="order">-->
-<!--                                <tr>-->
-<!--                                    <td>-->
-<!--                                        <t t-esc="order_index+1"/>-->
-<!--                                    </td>-->
-<!--                                    <td>-->
-<!--                                        <a t-att-href="'/service/%s/order' % order.id">-->
-<!--                                            <t t-esc="order.display_name"/>-->
-<!--                                        </a>-->
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                            </t>-->
-<!--                        </tbody>-->
-<!--                    </table>-->
+<!--        </t>-->
+<!--    </template>-->
+
+
+<!--        Customize whole page layout end-->
+
+    <template inherit_id="website.footer_custom" id="service_mobile_Footer">
+    <xpath expr="//div[@id='footer']" position="replace">
+        <div id="footer" class="oe_structure oe_structure_solo" t-ignore="true" t-if="not no_footer">
+            <section class="s_text_block pt16 pb8">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <h5>This is mobile version</h5>
+                            <ul class="list-unstyled">
+                                <li><a href="/">Home</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-lg-4" id="connect">
+                            <ul class="list-unstyled">
+                                <li><a href="/contactus">Contact us</a></li>
+                                <li><i class="fa fa-phone"/> <span class="o_force_ltr" t-field="res_company.phone"/></li>
+                                <li><i class="fa fa-envelope"/>  <span t-field="res_company.email"/></li>
+                            </ul>
+                            <p>
+                                <a t-if="website.social_facebook" t-att-href="website.social_facebook" class="btn btn-sm btn-link"><i class="fa fa-2x fa-facebook-square"/></a>
+                                <a t-if="website.social_twitter" t-att-href="website.social_twitter" class="btn btn-sm btn-link"><i class="fa fa-2x fa-twitter"/></a>
+                                <a t-if="website.social_linkedin" t-att-href="website.social_linkedin" class="btn btn-sm btn-link"><i class="fa fa-2x fa-linkedin"/></a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </xpath>
+</template>
+
+<!--    <template inherit_id="website.layout_footer_copyright"  id="service_mobile_footer">-->
+<!--    <xpath expr="//footer" position="inside">-->
+<!--        <div class="o_footer_copyright">-->
+<!--            <div class="container">-->
+<!--                <div class="row">-->
+<!--                    <div class="col-lg-6 text-muted text-center text-md-left">-->
+<!--                        <span>Copyright &amp;copy;</span> <span>Kim VVS Service | 2019 </span>-->
+<!--                        <t t-call="website.language_selector"/>-->
+<!--                    </div>-->
+<!--                    <div class="col-lg-6 text-right o_not_editable" t-if="not editable">-->
+<!--                        <t t-call="website.brand_promotion"/>-->
+<!--                    </div>-->
 <!--                </div>-->
-<!--            </t>-->
-<!--        </template>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </xpath>-->
+<!--</template>-->
+
+<!--        Show list of orders by mobile layout-->
+        <template id="mobile_layout">
+            <t t-call="website.layout">
+                <div class="service_mobile table-wrapper">
+                    <div class="table-title bg-light">
+                <div class="">
+                    <div class="">
+                        <nav class="navbar navbar-expand-md navbar-light bg-light">
+                            <div class="container">
+                                <a class="d-inline mr-1" t-att-href="'/service/all/order'">
+                                    <h3 class="d-inline mr-1" style="color:gray" >
+                                        <i class="fa fa-home"/>
+                                        Orders
+                                    </h3>
+                                </a>
+                                <button type="button" class="navbar-toggler" data-toggle="collapse"
+                                data-target="#table_menu_collapse"><span class="navbar-toggler-icon"/>
+                                </button>
+                                <div class="collapse navbar-collapse" id="table_menu_collapse">
+                                    <!-- FIXME We want menu to open to the right by default (except cases handled in JS) -->
+                                    <ul class="nav navbar-nav ml-auto text-right" id="top_menu">
+                                        <li class="nav-item" t-ignore="true" t-if="not user_id._is_public()">
+                                            <a t-att-href="'/service/order/create'" class="ml-1">
+                                                <p class="d-inline">Create New | </p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a t-att-href="'/service/order/create'" class="ml-1">
+                                                <p class="d-inline">Order Result |</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a t-att-href="'/service/all/project'" class="ml-1">
+                                                <p class="d-inline">Projects</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </nav>
+
+                    </div>
+                </div>
+
+            </div>
+
+                    <table class="table table-striped table-hover" id="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th id="order_id" data-sortable="true" data-field="order_id">Order ID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="order_ids" t-as="order">
+                                <tr>
+                                    <td>
+                                        <t t-esc="order_index+1"/>
+                                    </td>
+                                    <td>
+                                        <a t-att-href="'/service/%s/order' % order.id">
+                                            <t t-esc="order.display_name"/>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+
+
+        </template>
+
+
+
+
+
+
+
 
         <!--Show list of orders-->
         <template id="index">
@@ -102,6 +252,9 @@
                                 </a>
                                 <a t-att-href="'/service/all/project'" class="pull-right mt-1" style="color:white;">
                                     <p class="d-inline">Projects</p>
+                                </a>
+                                <a t-att-href="'/service/all/order_mobile'" class="pull-right mt-1" style="color:white;">
+                                    <p class="d-inline">To Mobile Version | </p>
                                 </a>
                             </div>
                         </div>
@@ -1104,9 +1257,9 @@
                                 <th>Project Name</th>
                                 <th>Project Leader/Saler</th>
                                 <th>Customer</th>
-                                <th>Order</th>
+<!--                                <th>Order</th>-->
                                 <th>Tasks</th>
-                                <th>Start Date</th>
+<!--                                <th>Start Date</th>-->
                                 <th>Operation</th>
                             </tr>
                         </thead>
@@ -1130,17 +1283,17 @@
                                 <td>
                                     <t t-esc="project.user_id.name"/>
                                 </td>
-                                <td>
-                                    <t t-esc="project.sale_order_id.name"/>
-                                </td>
+<!--                                <td>-->
+<!--                                    <t t-esc="project.sale_order_id.name"/>-->
+<!--                                </td>-->
                                 <td>
                                     <span class="badge badge-warning">
                                         <t t-esc="project.task_count"/>
                                     </span>
                                 </td>
-                                <td>
-                                    <t t-esc="project.date_start"/>
-                                </td>
+<!--                                <td>-->
+<!--                                    <t t-esc="project.date_start"/>-->
+<!--                                </td>-->
 
                                 <td>
                                     <a t-att-href="'/service/%s/project/delete' % project.id">

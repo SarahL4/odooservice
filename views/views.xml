@@ -1,21 +1,9 @@
 <odoo>
   <data>
-    <!-- explicit list view definition -->
-    <!--
-    <record model="ir.ui.view" id="service_mobile.list">
-      <field name="name">service_mobile list</field>
-      <field name="model">service_mobile.service_mobile</field>
-      <field name="arch" type="xml">
-        <tree>
-          <field name="name"/>
-          <field name="value"/>
-          <field name="value2"/>
-        </tree>
-      </field>
-    </record>
-    -->
 
-    <!-- actions opening views on models -->
+
+
+
     <!--
     <record model="ir.actions.act_window" id="service_mobile.action_window">
       <field name="name">service_mobile window</field>

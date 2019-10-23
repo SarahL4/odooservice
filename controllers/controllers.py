@@ -42,6 +42,25 @@ class ServiceMobile(http.Controller):
             'order_ids': order_ids
         })
 
+    @http.route('/service/all/order_mobile/', auth='public', website=True)
+    def index_mobile(self, **kw):
+        order_ids = http.request.env['sale.order'].search([]).filtered(lambda r: r.invoice_status != 'invoiced' and r.state != 'cancel')
+
+        return http.request.render('service_mobile.mobile_layout', {
+            'root': '/service/all/order_mobile/',
+            'order_ids': order_ids
+        })
+
+    # @http.route('/service/all/order_mobile',auth='user', website=True)
+    # def index_mobile(self, **kw):
+    #     order_ids = http.request.env['sale.order'].search([]).filtered(
+    #         lambda r: r.invoice_status != 'invoiced' and r.state != 'cancel')
+    #
+    #     return http.request.render('service_mobile.index_mobile', {
+    #         'root': '/service/all/order_mobile',
+    #         'order_ids': order_ids
+    #     })
+
     # Show list of orders quantity and amount
     @http.route('/service/all/result/', auth='user', website=True)
     def index_result(self, **kw):
