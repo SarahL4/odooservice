@@ -21,6 +21,7 @@
 
 
 from odoo import http, fields
+from odoo.http import request, Response
 import werkzeug
 import datetime
 import base64
@@ -33,10 +34,11 @@ logger = logging.getLogger(__name__)
 
 class ServiceMobile(http.Controller):
     # Show list of orders (show only "Fully Invoiced")
-    @http.route('/service/all/order/',auth='user', website=True)
+    @http.route('/service/all/order/', auth='user', website=True)
     def index_order(self, **kw):
         # order_ids = http.request.env['sale.order'].search([])
-        order_ids = http.request.env['sale.order'].search([]).filtered(lambda r: r.invoice_status != 'invoiced' and r.state != 'cancel')
+        order_ids = http.request.env['sale.order'].search([]).filtered(
+            lambda r: r.invoice_status != 'invoiced' and r.state != 'cancel')
         return http.request.render('service_mobile.index', {
             'root': '/service/all/order/',
             'order_ids': order_ids
@@ -44,7 +46,8 @@ class ServiceMobile(http.Controller):
 
     @http.route('/service/all/order_mobile/', auth='public', website=True)
     def index_mobile(self, **kw):
-        order_ids = http.request.env['sale.order'].search([]).filtered(lambda r: r.invoice_status != 'invoiced' and r.state != 'cancel')
+        order_ids = http.request.env['sale.order'].search([]).filtered(
+            lambda r: r.invoice_status != 'invoiced' and r.state != 'cancel')
 
         return http.request.render('service_mobile.mobile_layout', {
             'root': '/service/all/order_mobile/',
@@ -123,6 +126,81 @@ class ServiceMobile(http.Controller):
             'pprice_total': pprice_total,
         })
 
+    @http.route('/kimvvs.se/<model("res.partner"):_partner>/', auth='public', website=True)
+    def vcard_partner_view(self, _partner, **kw):
+        partner = http.request.env['res.partner'].search([('id', '=', _partner.id)])
+        title_ids = http.request.env['res.partner.title'].search([('id', '=', partner.title.id)])
+        # title = http.request.env['res.partner.title'].search([('name', '=', _partner.title.name)])
+        # if partner.is_company == 'true':
+        #     title = partner.title
+        # else:
+        #     title = partner.function
+        # title=''
+        # for ti in title_ids:
+        #     title=ti
+        #
+        # logger.info(_partner)
+        logger.info(partner.function)
+        logger.info(partner.title)
+        # logger.info(partner.title.name)
+        # logger.info(title)
+        return http.request.render('service_mobile.partner_vcard_view', {
+            'root': '/kimvvs.se/%s/' % partner.id,
+            'partner': partner
+        })
+
+    @http.route(['/kimvvs.se/<model("res.partner"):_partner>/send/vcard.vcf'], auth='public', website=True)
+    def vcard_partner(self, _partner, **kw):
+        partner = http.request.env['res.partner'].search([('id', '=', _partner.id)])
+        # Kommentarer:
+        # ````````````
+        # Tre stycken """ definerar en sträng som kan sträcka sig över flera rader i python.
+        #
+        # Funktionen format() som används nedan kommer söka på det innan likamedtecknet i
+        # strängen innan och byta ut t.ex. {name} mot det som kommer efter likamedtecknet.
+        # Nya variabler kan defineras fritt med kommatecken.
+        #
+        # Lättast är att ni kopierar in denna kod i ert befintliga projekt för kim och
+        # jobbar därifrån.
+
+        # result = """BEGIN:VCARD
+        #     #         VERSION:3.0
+        #     #         FN;CHARSET=UTF-8:{name}
+        #     #         N;CHARSET=UTF-8:{family_name};{given_name};;;
+        #     #         EMAIL;CHARSET=UTF-8;type=WORK,INTERNET:Kim.Kimsson@kimsvvs.se
+        #     #         PHOTO;TYPE=undefined:https://kimsvvs.se/bilder/foto.jpeg
+        #     #         TEL;TYPE=WORK,VOICE:+460123456789
+        #     #         TITLE;CHARSET=UTF-8:Fixare
+        #     #         ORG;CHARSET=UTF-8:Kims VVS
+        #     #         URL;CHARSET=UTF-8:https://kimsvvs.se/partner/1/
+        #     #         REV:2019-09-13T09:26:53.011Z
+        #     #         END:VCARD""".format(name=???, given_name =???, family_name =???, etc = "...", ...)
+        _company = ''
+        if partner.company_name:
+            _company = partner.company_name
+        else:
+            _company = partner.parent_id.display_name
+
+
+        result = """BEGIN:VCARD
+                    VERSION:3.0
+                    FN;CHARSET=UTF-8:{name}
+                    TITLE;CHARSET=UTF-8:{title}
+                    TEL;TYPE=WORK,VOICE:{phone}
+                    EMAIL;CHARSET=UTF-8;type=WORK,INTERNET:{email}
+                    ORG;CHARSET=UTF-8:{company}
+                    URL;CHARSET=UTF-8:http://localhost:8069/kimvvs.se/{id}
+                    REV:2019-09-13T09:26:53.011Z
+                    END:VCARD""".format(
+            name=partner.name,
+            title=partner.function,
+            phone=partner.phone,
+            email=partner.email,
+            company=_company,
+            id=partner.id)
+
+        return Response(result, mimetype='text/vcard')
+
     # Show order detail and update order
     @http.route('/service/<model("sale.order"):order>/order/', auth='user', website=True, methods=['GET', 'POST'])
     def update_order(self, order, **post):
@@ -131,7 +209,8 @@ class ServiceMobile(http.Controller):
             order.prio = post.get('prio')
             # env['sale.order.line'].search([('order_id', '=', order.id), ('line.product_uom', '=', http.request.env.ref('uom.product_uom_hour'))])
 
-            sale_order_line_ids = order.order_line.search([('order_id', '=', order.id), ('product_uom.name', '=', 'Timme(ar)')])
+            sale_order_line_ids = order.order_line.search(
+                [('order_id', '=', order.id), ('product_uom.name', '=', 'Timme(ar)')])
             if len(sale_order_line_ids) > 0:
                 sale_order_line_ids[0].product_uom_qty = post.get('qty')
                 sale_order_line_ids[0].qty_delivered = post.get('qty_delivered')
@@ -141,7 +220,7 @@ class ServiceMobile(http.Controller):
                 'root': '/service/%s/order/' % order.id,
                 'order': order,
                 'date': datetime.datetime.now().strftime('%Y-%m-%d'),
-                'employee': http.request.env['hr.employee'].search([('user_id','=',http.request.session.uid)]),
+                'employee': http.request.env['hr.employee'].search([('user_id', '=', http.request.session.uid)]),
                 'partner_ids': http.request.env['res.partner'].search([('customer', '=', True)]),
                 'sale_order_line_ids': sale_order_line_ids,
                 'help': {'name': 'This is help string for name'},
@@ -168,7 +247,7 @@ class ServiceMobile(http.Controller):
                     'sale_order_line_ids': sale_order_line_ids,
                     'task_objs': task_objs,
                     'date': datetime.datetime.now().strftime('%Y-%m-%d'),
-                    'employee': http.request.env['hr.employee'].search([('user_id','=',http.request.session.uid)]),
+                    'employee': http.request.env['hr.employee'].search([('user_id', '=', http.request.session.uid)]),
                     'help': {'name': 'This is help string for name'},
                     'validation': {'name': 'Warning'},
                     'input_attrs': {},
@@ -181,7 +260,7 @@ class ServiceMobile(http.Controller):
                     'sale_order_line_ids': sale_order_line_ids,
                     'task_objs': task_index,
                     'date': datetime.datetime.now().strftime('%Y-%m-%d'),
-                    'employee': http.request.env['hr.employee'].search([('user_id','=',http.request.session.uid)]),
+                    'employee': http.request.env['hr.employee'].search([('user_id', '=', http.request.session.uid)]),
                     'help': {'name': 'This is help string for name'},
                     'validation': {'name': 'Warning'},
                     'input_attrs': {},
@@ -195,7 +274,8 @@ class ServiceMobile(http.Controller):
             if len(order.tasks_ids) > 0:
                 new_task_params = {'date': datetime.datetime.now(),
                                    # 'employee_id': http.request.website.user_id.id,
-                                   'employee_id': http.request.env['hr.employee'].search([('user_id','=',http.request.session.uid)])[0].id,
+                                   'employee_id': http.request.env['hr.employee'].search(
+                                       [('user_id', '=', http.request.session.uid)])[0].id,
                                    'name': post.get('name'),
                                    'unit_amount': float(post.get('hours')),
                                    'account_id': order.tasks_ids[0].project_id.analytic_account_id.id,
@@ -216,7 +296,7 @@ class ServiceMobile(http.Controller):
                 'order': order,
                 'task_objs': task_objs,
                 'date': datetime.datetime.now().strftime('%Y-%m-%d'),
-                'employee': http.request.env['hr.employee'].search([('user_id','=',http.request.session.uid)]),
+                'employee': http.request.env['hr.employee'].search([('user_id', '=', http.request.session.uid)]),
                 'help': {'name': 'This is help string for name'},
                 'validation': {'name': 'Warning'},
                 'input_attrs': {},
@@ -226,7 +306,7 @@ class ServiceMobile(http.Controller):
     @http.route('/service/<model("sale.order.line"):order_line>/line/deliver', auth='user', website=True)
     def update_delivery(self, order_line, **kw):
         order_line.qty_delivered = order_line.product_uom_qty
-        order_url='/service/%s/order/' % order_line.order_id.id
+        order_url = '/service/%s/order/' % order_line.order_id.id
 
         return werkzeug.utils.redirect(order_url, 302)
 
@@ -316,7 +396,8 @@ class ServiceMobile(http.Controller):
                 return werkzeug.utils.redirect(order_url, 302)
                 # return werkzeug.utils.redirect('/service/all/order', 302)
         else:
-            order_attachment_ids = http.request.env['ir.attachment'].search([('res_model', '=', 'sale.order'),('res_id', '=', order.id)])
+            order_attachment_ids = http.request.env['ir.attachment'].search(
+                [('res_model', '=', 'sale.order'), ('res_id', '=', order.id)])
             return http.request.render('service_mobile.order_images', {
                 'root': '/service/%s/images/' % order.id,
                 'order': order,
@@ -357,13 +438,13 @@ class ServiceMobile(http.Controller):
             new_invoice_id = order.action_invoice_create()
             invoice = http.request.env['account.invoice'].browse(new_invoice_id)
 
-            if invoice.state != 'cancel' and order.state =='sale' and order.state !='cancel':
+            if invoice.state != 'cancel' and order.state == 'sale' and order.state != 'cancel':
                 if invoice.state == 'draft':
                     # Customer can pay now
                     invoice.state = 'open'
 
                 template = http.request.env.ref('account.email_template_edi_invoice')
-                template.write({'email_to':invoice.partner_id.email})
+                template.write({'email_to': invoice.partner_id.email})
                 template.send_mail(invoice.id, force_send=True)
 
             if order.state != 'cancel':
@@ -388,7 +469,6 @@ class ServiceMobile(http.Controller):
     #     template.send_mail(invoice.id, force_send=True)
     #
     #     return werkzeug.utils.redirect('/service/all/order/', 302)
-
 
     # -------------------------------------------
     # VG-uppgift

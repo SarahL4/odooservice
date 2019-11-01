@@ -14,6 +14,11 @@ from odoo import models, fields, api
 #     def _value_pc(self):
 #         self.value2 = float(self.value) / 100
 
+class res_partner(models.Model):
+    _inherit = "res.partner"
+
+class partner_title(models.Model):
+    _inherit = "res.partner.title"
 
 class sale_order(models.Model):
     _inherit = "sale.order"

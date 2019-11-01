@@ -3,8 +3,14 @@
 
         <template id="assets_frontend" inherit_id="web.assets_frontend">
             <xpath expr="." position="inside">
+                <!--                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>-->
                 <link rel="stylesheet" href="/service_mobile/static/src/css/site.css"/>
+                <!--                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css"/>-->
+
                 <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css"/>
+                <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+                      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+                      crossorigin="anonymous"/>
 
                 <script type="text/javascript"
                         src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"/>
@@ -13,186 +19,206 @@
         </template>
 
         <!-- Mobile website layout-->
-<!--    <template id="web_layout" inherit_id="web.layout">-->
-    <template id="web_layout" inherit_id="web.layout">
-      <xpath expr="//head" position="inside">
-          <title>Kims Faktureringsmaskin</title>
-          <meta name="apple-mobile-web-app-capable" content="yes" />
-          <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-          <meta name="apple-mobile-web-app-title" content="Kims Faktureringsmaskin" />
-          <meta name="mobile-web-app-capable" content="yes" />
-          <link rel="apple-touch-icon" sizes="180x180" href="/service_mobile/static/src/img/icon180.jpg" />
-          <link rel="apple-touch-icon" sizes="152x152" href="/service_mobile/static/src/img/icon152.jpg" />
-          <link rel="apple-touch-icon" sizes="167x167" href="/service_mobile/static/src/img/icon167.jpg" />
-      </xpath>
-    </template>
+        <!--    <template id="web_layout" inherit_id="web.layout">-->
+        <template id="web_layout" inherit_id="web.layout">
+            <xpath expr="//head" position="inside">
+                <title>Kims Faktureringsmaskin</title>
+                <meta name="apple-mobile-web-app-capable" content="yes"/>
+                <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+                <meta name="apple-mobile-web-app-title" content="Kims Faktureringsmaskin"/>
+                <meta name="mobile-web-app-capable" content="yes"/>
+                <link rel="apple-touch-icon" sizes="180x180" href="/service_mobile/static/src/img/icon180.jpg"/>
+                <link rel="apple-touch-icon" sizes="152x152" href="/service_mobile/static/src/img/icon152.jpg"/>
+                <link rel="apple-touch-icon" sizes="167x167" href="/service_mobile/static/src/img/icon167.jpg"/>
+            </xpath>
+        </template>
 
-<!--        Customize whole page layout-->
-<!--<template id="service_mobile_layout"  inherit_id="portal.frontend_layout">-->
-<!--        <t t-call="web.layout">-->
-<!--            <t t-set="head_website">-->
-<!--                <script type="text/javascript">-->
-<!--                    odoo.session_info = {-->
-<!--                        is_admin: <t t-esc="json.dumps(request.env.user._is_admin())"/>,-->
-<!--                        is_system: <t t-esc="json.dumps(request.env.user._is_system())"/>,-->
-<!--                        is_website_user: <t t-esc="json.dumps(request.env.user._is_public())"/>,-->
-<!--                        user_id: <t t-esc="json.dumps(request.env.user.id)"/>,-->
-<!--                        is_frontend: true,-->
-<!--                        translationURL: '/website/translations',-->
-<!--                    };-->
-<!--                </script>-->
+        <!--        Customize whole page layout-->
+        <!--<template id="service_mobile_layout"  inherit_id="portal.frontend_layout">-->
+        <!--        <t t-call="web.layout">-->
+        <!--            <t t-set="head_website">-->
+        <!--                <script type="text/javascript">-->
+        <!--                    odoo.session_info = {-->
+        <!--                        is_admin: <t t-esc="json.dumps(request.env.user._is_admin())"/>,-->
+        <!--                        is_system: <t t-esc="json.dumps(request.env.user._is_system())"/>,-->
+        <!--                        is_website_user: <t t-esc="json.dumps(request.env.user._is_public())"/>,-->
+        <!--                        user_id: <t t-esc="json.dumps(request.env.user.id)"/>,-->
+        <!--                        is_frontend: true,-->
+        <!--                        translationURL: '/website/translations',-->
+        <!--                    };-->
+        <!--                </script>-->
 
-<!--                <t t-call-assets="web.assets_common" t-js="false"/>-->
-<!--                <t t-call-assets="web.assets_frontend" t-js="false"/>-->
+        <!--                <t t-call-assets="web.assets_common" t-js="false"/>-->
+        <!--                <t t-call-assets="web.assets_frontend" t-js="false"/>-->
 
-<!--                <t t-call-assets="web.assets_common" t-css="false"/>-->
-<!--                <t t-call-assets="web.assets_frontend" t-css="false"/>-->
-<!--            </t>-->
-<!--            <t t-set="head" t-value="head_website + (head or '')"/>-->
+        <!--                <t t-call-assets="web.assets_common" t-css="false"/>-->
+        <!--                <t t-call-assets="web.assets_frontend" t-css="false"/>-->
+        <!--            </t>-->
+        <!--            <t t-set="head" t-value="head_website + (head or '')"/>-->
 
-<!--            <t t-set="direction" t-value="request.env['res.lang'].search([('code', '=', request.env.lang)]).direction"/>-->
+        <!--            <t t-set="direction" t-value="request.env['res.lang'].search([('code', '=', request.env.lang)]).direction"/>-->
 
-<!--            <div id="wrapwrap" t-attf-class="#{pageName or ''} #{direction == 'rtl' and 'o_rtl' or ''} #{'o_portal' if is_portal else ''}">-->
-<!--                <header>-->
-<!--                    <nav class="navbar navbar-expand-md navbar-light bg-light">-->
-<!--                        <div class="container">-->
-<!--                            <a href="/" class="navbar-brand logo">-->
-<!--                                <img t-att-src="'/logo.png?company=%s' % res_company.id" t-att-alt="'Logo of %s' % res_company.name" t-att-title="res_company.name"/>-->
-<!--                            </a>-->
-<!--                            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#top_menu_collapse">-->
-<!--                                <span class="navbar-toggler-icon"/>-->
-<!--                            </button>-->
-<!--                            <div class="collapse navbar-collapse" id="top_menu_collapse">-->
-<!--                                &lt;!&ndash; FIXME We want menu to open to the right by default (except cases handled in JS) &ndash;&gt;-->
-<!--                                <ul class="nav navbar-nav ml-auto text-right" id="top_menu">-->
-<!--                                    <li class="nav-item divider" t-ignore="true" t-if="not user_id._is_public()"/>-->
-<!--                                    <li class="nav-item dropdown" t-ignore="true" t-if="not user_id._is_public()">-->
-<!--                                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">-->
-<!--                                            <b>-->
-<!--                                                <span t-esc="user_id.name[:23] + '...' if user_id.name and len(user_id.name) &gt; 25 else user_id.name"/>-->
-<!--                                            </b>-->
-<!--                                        </a>-->
-<!--                                        <div class="dropdown-menu js_usermenu" role="menu">-->
-<!--                                            <a id="o_logout" class="dropdown-item" t-attf-href="/web/session/logout?redirect=/" role="menuitem">Logout</a>-->
-<!--                                        </div>-->
-<!--                                    </li>-->
-<!--                                </ul>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </nav>-->
-<!--                </header>-->
-<!--                <main>-->
-<!--                    <t t-raw="0"/>-->
-<!--                </main>-->
-<!--&lt;!&ndash;                <footer class="bg-light o_footer">&ndash;&gt;-->
-<!--&lt;!&ndash;                    <div class="container mt16 mb16" id="footer">&ndash;&gt;-->
-<!--&lt;!&ndash;                        <div class="float-right mb16" t-ignore="true" t-if="not editable">&ndash;&gt;-->
-<!--&lt;!&ndash;                            Powered by <a target="_blank" href="http://www.odoo.com?utm_source=db&amp;utm_medium=portal">Odoo</a>&ndash;&gt;-->
-<!--&lt;!&ndash;                        </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                    </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                </footer>&ndash;&gt;-->
-<!--            </div>-->
+        <!--            <div id="wrapwrap" t-attf-class="#{pageName or ''} #{direction == 'rtl' and 'o_rtl' or ''} #{'o_portal' if is_portal else ''}">-->
+        <!--                <header>-->
+        <!--                    <nav class="navbar navbar-expand-md navbar-light bg-light">-->
+        <!--                        <div class="container">-->
+        <!--                            <a href="/" class="navbar-brand logo">-->
+        <!--                                <img t-att-src="'/logo.png?company=%s' % res_company.id" t-att-alt="'Logo of %s' % res_company.name" t-att-title="res_company.name"/>-->
+        <!--                            </a>-->
+        <!--                            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#top_menu_collapse">-->
+        <!--                                <span class="navbar-toggler-icon"/>-->
+        <!--                            </button>-->
+        <!--                            <div class="collapse navbar-collapse" id="top_menu_collapse">-->
+        <!--                                &lt;!&ndash; FIXME We want menu to open to the right by default (except cases handled in JS) &ndash;&gt;-->
+        <!--                                <ul class="nav navbar-nav ml-auto text-right" id="top_menu">-->
+        <!--                                    <li class="nav-item divider" t-ignore="true" t-if="not user_id._is_public()"/>-->
+        <!--                                    <li class="nav-item dropdown" t-ignore="true" t-if="not user_id._is_public()">-->
+        <!--                                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">-->
+        <!--                                            <b>-->
+        <!--                                                <span t-esc="user_id.name[:23] + '...' if user_id.name and len(user_id.name) &gt; 25 else user_id.name"/>-->
+        <!--                                            </b>-->
+        <!--                                        </a>-->
+        <!--                                        <div class="dropdown-menu js_usermenu" role="menu">-->
+        <!--                                            <a id="o_logout" class="dropdown-item" t-attf-href="/web/session/logout?redirect=/" role="menuitem">Logout</a>-->
+        <!--                                        </div>-->
+        <!--                                    </li>-->
+        <!--                                </ul>-->
+        <!--                            </div>-->
+        <!--                        </div>-->
+        <!--                    </nav>-->
+        <!--                </header>-->
+        <!--                <main>-->
+        <!--                    <t t-raw="0"/>-->
+        <!--                </main>-->
+        <!--&lt;!&ndash;                <footer class="bg-light o_footer">&ndash;&gt;-->
+        <!--&lt;!&ndash;                    <div class="container mt16 mb16" id="footer">&ndash;&gt;-->
+        <!--&lt;!&ndash;                        <div class="float-right mb16" t-ignore="true" t-if="not editable">&ndash;&gt;-->
+        <!--&lt;!&ndash;                            Powered by <a target="_blank" href="http://www.odoo.com?utm_source=db&amp;utm_medium=portal">Odoo</a>&ndash;&gt;-->
+        <!--&lt;!&ndash;                        </div>&ndash;&gt;-->
+        <!--&lt;!&ndash;                    </div>&ndash;&gt;-->
+        <!--&lt;!&ndash;                </footer>&ndash;&gt;-->
+        <!--            </div>-->
 
-<!--        </t>-->
-<!--    </template>-->
+        <!--        </t>-->
+        <!--    </template>-->
 
 
-<!--        Customize whole page layout end-->
+        <!--        Customize whole page layout end-->
 
-    <template inherit_id="website.footer_custom" id="service_mobile_Footer">
-    <xpath expr="//div[@id='footer']" position="replace">
-        <div id="footer" class="oe_structure oe_structure_solo" t-ignore="true" t-if="not no_footer">
-            <section class="s_text_block pt16 pb8">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-4">
-                            <h5>This is mobile version</h5>
-                            <ul class="list-unstyled">
-                                <li><a href="/">Home</a></li>
-                            </ul>
+        <template inherit_id="website.footer_custom" id="service_mobile_Footer">
+            <xpath expr="//div[@id='footer']" position="replace">
+                <div id="footer" class="oe_structure oe_structure_solo" t-ignore="true" t-if="not no_footer">
+                    <section class="s_text_block pt16 pb8">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <h5>This is mobile version</h5>
+                                    <ul class="list-unstyled">
+                                        <li>
+                                            <a href="/">Home</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-lg-4" id="connect">
+                                    <ul class="list-unstyled">
+                                        <li>
+                                            <a href="/contactus">Contact us</a>
+                                        </li>
+                                        <li>
+                                            <i class="fa fa-phone"/>
+                                            <span class="o_force_ltr" t-field="res_company.phone"/>
+                                        </li>
+                                        <li>
+                                            <i class="fa fa-envelope"/>
+                                            <span t-field="res_company.email"/>
+                                        </li>
+                                    </ul>
+                                    <p>
+                                        <a t-if="website.social_facebook" t-att-href="website.social_facebook"
+                                           class="btn btn-sm btn-link">
+                                            <i class="fa fa-2x fa-facebook-square"/>
+                                        </a>
+                                        <a t-if="website.social_twitter" t-att-href="website.social_twitter"
+                                           class="btn btn-sm btn-link">
+                                            <i class="fa fa-2x fa-twitter"/>
+                                        </a>
+                                        <a t-if="website.social_linkedin" t-att-href="website.social_linkedin"
+                                           class="btn btn-sm btn-link">
+                                            <i class="fa fa-2x fa-linkedin"/>
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-lg-4" id="connect">
-                            <ul class="list-unstyled">
-                                <li><a href="/contactus">Contact us</a></li>
-                                <li><i class="fa fa-phone"/> <span class="o_force_ltr" t-field="res_company.phone"/></li>
-                                <li><i class="fa fa-envelope"/>  <span t-field="res_company.email"/></li>
-                            </ul>
-                            <p>
-                                <a t-if="website.social_facebook" t-att-href="website.social_facebook" class="btn btn-sm btn-link"><i class="fa fa-2x fa-facebook-square"/></a>
-                                <a t-if="website.social_twitter" t-att-href="website.social_twitter" class="btn btn-sm btn-link"><i class="fa fa-2x fa-twitter"/></a>
-                                <a t-if="website.social_linkedin" t-att-href="website.social_linkedin" class="btn btn-sm btn-link"><i class="fa fa-2x fa-linkedin"/></a>
-                            </p>
-                        </div>
-                    </div>
+                    </section>
                 </div>
-            </section>
-        </div>
-    </xpath>
-</template>
+            </xpath>
+        </template>
 
-<!--    <template inherit_id="website.layout_footer_copyright"  id="service_mobile_footer">-->
-<!--    <xpath expr="//footer" position="inside">-->
-<!--        <div class="o_footer_copyright">-->
-<!--            <div class="container">-->
-<!--                <div class="row">-->
-<!--                    <div class="col-lg-6 text-muted text-center text-md-left">-->
-<!--                        <span>Copyright &amp;copy;</span> <span>Kim VVS Service | 2019 </span>-->
-<!--                        <t t-call="website.language_selector"/>-->
-<!--                    </div>-->
-<!--                    <div class="col-lg-6 text-right o_not_editable" t-if="not editable">-->
-<!--                        <t t-call="website.brand_promotion"/>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </xpath>-->
-<!--</template>-->
+        <!--    <template inherit_id="website.layout_footer_copyright"  id="service_mobile_footer">-->
+        <!--    <xpath expr="//footer" position="inside">-->
+        <!--        <div class="o_footer_copyright">-->
+        <!--            <div class="container">-->
+        <!--                <div class="row">-->
+        <!--                    <div class="col-lg-6 text-muted text-center text-md-left">-->
+        <!--                        <span>Copyright &amp;copy;</span> <span>Kim VVS Service | 2019 </span>-->
+        <!--                        <t t-call="website.language_selector"/>-->
+        <!--                    </div>-->
+        <!--                    <div class="col-lg-6 text-right o_not_editable" t-if="not editable">-->
+        <!--                        <t t-call="website.brand_promotion"/>-->
+        <!--                    </div>-->
+        <!--                </div>-->
+        <!--            </div>-->
+        <!--        </div>-->
+        <!--    </xpath>-->
+        <!--</template>-->
 
-<!--        Show list of orders by mobile layout-->
+        <!--        Show list of orders by mobile layout-->
         <template id="mobile_layout">
             <t t-call="website.layout">
                 <div class="service_mobile table-wrapper">
                     <div class="table-title bg-light">
-                <div class="">
-                    <div class="">
-                        <nav class="navbar navbar-expand-md navbar-light bg-light">
-                            <div class="container">
-                                <a class="d-inline mr-1" t-att-href="'/service/all/order'">
-                                    <h3 class="d-inline mr-1" style="color:gray" >
-                                        <i class="fa fa-home"/>
-                                        Orders
-                                    </h3>
-                                </a>
-                                <button type="button" class="navbar-toggler" data-toggle="collapse"
-                                data-target="#table_menu_collapse"><span class="navbar-toggler-icon"/>
-                                </button>
-                                <div class="collapse navbar-collapse" id="table_menu_collapse">
-                                    <!-- FIXME We want menu to open to the right by default (except cases handled in JS) -->
-                                    <ul class="nav navbar-nav ml-auto text-right" id="top_menu">
-                                        <li class="nav-item" t-ignore="true" t-if="not user_id._is_public()">
-                                            <a t-att-href="'/service/order/create'" class="ml-1">
-                                                <p class="d-inline">Create New | </p>
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a t-att-href="'/service/order/create'" class="ml-1">
-                                                <p class="d-inline">Order Result |</p>
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a t-att-href="'/service/all/project'" class="ml-1">
-                                                <p class="d-inline">Projects</p>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
+                        <div class="">
+                            <div class="">
+                                <nav class="navbar navbar-expand-md navbar-light bg-light">
+                                    <div class="container">
+                                        <a class="d-inline mr-1" t-att-href="'/service/all/order'">
+                                            <h3 class="d-inline mr-1" style="color:gray">
+                                                <i class="fa fa-home"/>
+                                                Orders
+                                            </h3>
+                                        </a>
+                                        <button type="button" class="navbar-toggler" data-toggle="collapse"
+                                                data-target="#table_menu_collapse">
+                                            <span class="navbar-toggler-icon"/>
+                                        </button>
+                                        <div class="collapse navbar-collapse" id="table_menu_collapse">
+                                            <!-- FIXME We want menu to open to the right by default (except cases handled in JS) -->
+                                            <ul class="nav navbar-nav ml-auto text-right" id="top_menu">
+                                                <li class="nav-item" t-ignore="true" t-if="not user_id._is_public()">
+                                                    <a t-att-href="'/service/order/create'" class="ml-1">
+                                                        <p class="d-inline">Create New |</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a t-att-href="'/service/order/create'" class="ml-1">
+                                                        <p class="d-inline">Order Result |</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a t-att-href="'/service/all/project'" class="ml-1">
+                                                        <p class="d-inline">Projects</p>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </nav>
+
                             </div>
-                        </nav>
+                        </div>
 
                     </div>
-                </div>
-
-            </div>
 
                     <table class="table table-striped table-hover" id="table">
                         <thead>
@@ -223,12 +249,6 @@
         </template>
 
 
-
-
-
-
-
-
         <!--Show list of orders-->
         <template id="index">
             <t t-call="website.layout">
@@ -253,8 +273,9 @@
                                 <a t-att-href="'/service/all/project'" class="pull-right mt-1" style="color:white;">
                                     <p class="d-inline">Projects</p>
                                 </a>
-                                <a t-att-href="'/service/all/order_mobile'" class="pull-right mt-1" style="color:white;">
-                                    <p class="d-inline">To Mobile Version | </p>
+                                <a t-att-href="'/service/all/order_mobile'" class="pull-right mt-1"
+                                   style="color:white;">
+                                    <p class="d-inline">To Mobile Version |</p>
                                 </a>
                             </div>
                         </div>
@@ -691,6 +712,128 @@
             </t>
         </template>
 
+        <!--tenta-->
+        <template id="partner_vcard_view" name="Partner vCard">
+            <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+                  integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+                  crossorigin="anonymous"/>
+            <link rel="stylesheet"
+                  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+            <p>
+               id: <t t-esc="partner.id"></t>
+            </p>
+            <p>
+                company name:<t t-esc="partner.company_name"></t>
+            </p>
+            <p>
+                address:<t t-esc="partner.contact_address"></t>
+            </p>
+            <p>
+                parent_id:<t t-esc="partner.parent_id"></t>
+            </p>
+            <p>
+                parent_id.display_name:<t t-esc="partner.parent_id.display_name"></t>
+            </p>
+            <p>
+                partner name:<t t-esc="partner.name"></t>
+            </p>
+            <p>function:
+                <t t-esc="partner.function"></t>
+            </p>
+            <!--        <p>function: <t t-esc="partner.function"></t></p>-->
+            <p>title1:
+                <t t-esc="partner.title"></t>
+            </p>
+            <!--        <p>title2:<t t-esc="title"></t></p>-->
+            <p>
+               phone: <t t-esc="partner.phone"></t>
+            </p>
+            <p>
+               email: <t t-esc="partner.email"></t>
+            </p>
+            <p>hahah</p>
+
+            <div class="container text-center py-4 my-4" style="min-width:350px;max-width:100%">
+                <div class="row">
+                    <div class="col-12 col-md-12 col-lg-12">
+                        <div class="" stype="">
+                            <figure>
+                                <!--                                <img t-attf-src="image_data_uri(partner.image.datas)" class="img-fluid" style="width:100%;height:150px"/>-->
+                                <img t-attf-src="data:image/jpg;base64, {{partner.image}}" class="img-fluid"
+                                     style="width:150px;height:150px;border-radius:50%;"/>
+                            </figure>
+                            <h3>
+                                <t t-if="partner.name" t-esc="partner.name"></t>
+                            </h3>
+                            <div style="height:20px">
+                            <p style="color:gray">
+                                <t t-if="partner.function" t-esc="partner.function"></t>
+                                <t t-else="">No Title</t>
+                            </p>
+                            </div>
+                            <br/>
+                            <div class="row py-3 mb-1">
+                                <div class="col-12 col-md-12 col-xs-12">
+                                    <div class="row">
+                                         <div class="col-4 col-md-4 col-xs-4"></div>
+                                        <div class="col-2 col-md-2 col-xs-2">
+                                            <a t-att-href="'tel:%s' % partner.phone">
+                                                <i class="fa fa-phone"
+                                                   style="display:inline-block;border-radius:60px;
+                                         box-shadow: 0px 0px 2px royalblue;padding:0.5em 0.6em;
+                                         color:white;background:royalblue;font-size:20px;"/>
+                                                <p style="color:gray">Ring</p>
+                                            </a>
+                                        </div>
+                                        <div class="col-2 col-md-2 col-xs-2">
+                                            <a t-att-href="'mailto:%s' % partner.email">
+                                                <i class="fa fa-envelope"
+                                                   style="display:inline-block;border-radius:60px;
+                                         box-shadow: 0px 0px 2px royalblue;padding:0.5em 0.6em;
+                                         color:white;background:royalblue;font-size:20px;"/>
+                                                <p style="color:gray">Epost</p>
+                                            </a>
+                                        </div>
+                                         <div class="col-4 col-md-4 col-xs-4"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-6 col-md-6 col-xs-6"
+                                     style="display:inline-block; background:royalblue;color:white;
+                                             border:1px solid white;height:60px;padding-top:15px">
+                                    <a href="#">
+                                        <i class="fa fa-share-alt"
+                                           style="display:inline-block; color:white;font-size:20px;"/>
+                                    </a>
+                                    <p>Dela</p>
+                                </div>
+                                <div class="col-6 col-md-6 col-xs-6"
+                                     style="display:inline-block;background:royalblue;color:white;
+                                        border:1px solid white;;height:60px;padding-top:15px">
+                                    <a t-att-href="'/kimvvs.se/%s/send/vcard.vcf' % partner.id">
+                                        <i class="fa fa-download"
+                                           style="display:inline-block; color:white;font-size:20px;"/>
+                                    </a>
+                                    <p>Lägg till kontaktbok</p>
+
+<!--                                    <t t-if="order.state != 'cancel'">-->
+<!--                                            <a t-att-href="'/service/%s/order/delete' % order.id">-->
+<!--                                                <i class="fa fa-trash"/>-->
+<!--                                            </a>-->
+<!--                                        </t>-->
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+        <!--tenta end-->
+
+
         <!-- Show order detail and update order-->
         <template id="view_order">
             <t t-call="website.layout">
@@ -963,7 +1106,6 @@
                         </div>
 
 
-
                         <div t-att-class="'form-group %s' %validation.get('ufile', '')">
                             <label class="col-md-3 col-sm-4 control-label" for="ufile">Upload Picture</label>
                             <div t-attf-class="col-md-7 col-sm-8 form-group #{message.get('ufile') and 'has-error' or ''}">
@@ -975,10 +1117,13 @@
 
                         <div class="form-group">
                             <div class="row pull-right">
-                            <div class="col-md-7 col-sm-8 mt-2 pull-right">
-                                <button id="submit_btn" class="btn btn-primary btn-lg">Upload</button>
-                            </div></div>
-                        </div><br/><br/>
+                                <div class="col-md-7 col-sm-8 mt-2 pull-right">
+                                    <button id="submit_btn" class="btn btn-primary btn-lg">Upload</button>
+                                </div>
+                            </div>
+                        </div>
+                        <br/>
+                        <br/>
 
 
                         <!-- Page Content -->
@@ -986,7 +1131,8 @@
 
                             <h1 class="font-weight-light text-center text-lg-left mt-4 mb-0">Orders Images/ Gallery:
                             </h1>
-                            <p>Attachment: (<span t-esc="len(order_attachment_ids)"></span>)</p>
+                            <p>Attachment: (<span t-esc="len(order_attachment_ids)"></span>)
+                            </p>
 
                             <hr class="mt-2 mb-5"/>
 
@@ -1257,9 +1403,9 @@
                                 <th>Project Name</th>
                                 <th>Project Leader/Saler</th>
                                 <th>Customer</th>
-<!--                                <th>Order</th>-->
+                                <!--                                <th>Order</th>-->
                                 <th>Tasks</th>
-<!--                                <th>Start Date</th>-->
+                                <!--                                <th>Start Date</th>-->
                                 <th>Operation</th>
                             </tr>
                         </thead>
@@ -1283,17 +1429,17 @@
                                 <td>
                                     <t t-esc="project.user_id.name"/>
                                 </td>
-<!--                                <td>-->
-<!--                                    <t t-esc="project.sale_order_id.name"/>-->
-<!--                                </td>-->
+                                <!--                                <td>-->
+                                <!--                                    <t t-esc="project.sale_order_id.name"/>-->
+                                <!--                                </td>-->
                                 <td>
                                     <span class="badge badge-warning">
                                         <t t-esc="project.task_count"/>
                                     </span>
                                 </td>
-<!--                                <td>-->
-<!--                                    <t t-esc="project.date_start"/>-->
-<!--                                </td>-->
+                                <!--                                <td>-->
+                                <!--                                    <t t-esc="project.date_start"/>-->
+                                <!--                                </td>-->
 
                                 <td>
                                     <a t-att-href="'/service/%s/project/delete' % project.id">
@@ -1373,11 +1519,14 @@
                             </div>
 
                             <div class="form-group">
-                            <div class="row pull-right">
-                            <div class="col-md-7 col-sm-8 mt-2 pull-right">
-                                <button id="submit_btn" class="btn btn-primary btn-lg">Upload</button>
-                            </div></div>
-                        </div><br/><br/>
+                                <div class="row pull-right">
+                                    <div class="col-md-7 col-sm-8 mt-2 pull-right">
+                                        <button id="submit_btn" class="btn btn-primary btn-lg">Upload</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <br/>
+                            <br/>
 
                             <div class="container">
                                 <h1 class="font-weight-light text-center text-lg-left mt-4 mb-0">Project Images:/
