@@ -126,61 +126,37 @@ class ServiceMobile(http.Controller):
             'pprice_total': pprice_total,
         })
 
+    # Route-address can type: http://localhost:8069/kimvvs.se/1 or http://localhost:8069/kimvvs.se/yourcompany-1/
+    # Get partner information such as partner.id as parameter from route-address.
+    # Return a page that show a visit-card of a partner
     @http.route('/kimvvs.se/<model("res.partner"):_partner>/', auth='public', website=True)
     def vcard_partner_view(self, _partner, **kw):
-        partner = http.request.env['res.partner'].search([('id', '=', _partner.id)])
-        title_ids = http.request.env['res.partner.title'].search([('id', '=', partner.title.id)])
-        # title = http.request.env['res.partner.title'].search([('name', '=', _partner.title.name)])
-        # if partner.is_company == 'true':
-        #     title = partner.title
-        # else:
-        #     title = partner.function
-        # title=''
-        # for ti in title_ids:
-        #     title=ti
-        #
-        # logger.info(_partner)
-        logger.info(partner.function)
-        logger.info(partner.title)
-        # logger.info(partner.title.name)
-        # logger.info(title)
+        partner_ids = http.request.env['res.partner'].search([])
+        partner = partner_ids.filtered(lambda r:r.id ==_partner.id)
+
         return http.request.render('service_mobile.partner_vcard_view', {
-            'root': '/kimvvs.se/%s/' % partner.id,
+            'root': '/kimvvs.se/%s' % partner.id,
             'partner': partner
         })
 
+    # When "lägg till kontakterna" link in "/kimvvs.se/1" is clicked, partner's info/ID send to controller here
+    # Method "vcard_partner" in controller prepare alla required data to visit-card in form of vcard.vcf
+    # Method return a vcard data, and automatically allow user download this visit-card and use it in email or mobile contacts
     @http.route(['/kimvvs.se/<model("res.partner"):_partner>/send/vcard.vcf'], auth='public', website=True)
     def vcard_partner(self, _partner, **kw):
         partner = http.request.env['res.partner'].search([('id', '=', _partner.id)])
-        # Kommentarer:
-        # ````````````
-        # Tre stycken """ definerar en sträng som kan sträcka sig över flera rader i python.
-        #
-        # Funktionen format() som används nedan kommer söka på det innan likamedtecknet i
-        # strängen innan och byta ut t.ex. {name} mot det som kommer efter likamedtecknet.
-        # Nya variabler kan defineras fritt med kommatecken.
-        #
-        # Lättast är att ni kopierar in denna kod i ert befintliga projekt för kim och
-        # jobbar därifrån.
 
-        # result = """BEGIN:VCARD
-        #     #         VERSION:3.0
-        #     #         FN;CHARSET=UTF-8:{name}
-        #     #         N;CHARSET=UTF-8:{family_name};{given_name};;;
-        #     #         EMAIL;CHARSET=UTF-8;type=WORK,INTERNET:Kim.Kimsson@kimsvvs.se
-        #     #         PHOTO;TYPE=undefined:https://kimsvvs.se/bilder/foto.jpeg
-        #     #         TEL;TYPE=WORK,VOICE:+460123456789
-        #     #         TITLE;CHARSET=UTF-8:Fixare
-        #     #         ORG;CHARSET=UTF-8:Kims VVS
-        #     #         URL;CHARSET=UTF-8:https://kimsvvs.se/partner/1/
-        #     #         REV:2019-09-13T09:26:53.011Z
-        #     #         END:VCARD""".format(name=???, given_name =???, family_name =???, etc = "...", ...)
-        _company = ''
+        _company_name = ''
         if partner.company_name:
-            _company = partner.company_name
+            _company_name = partner.company_name
         else:
-            _company = partner.parent_id.display_name
+            _company_name = partner.parent_id.display_name
 
+        _title = ''
+        if partner.function:
+            _title = partner.function
+        else:
+            _title = 'No Title'
 
         result = """BEGIN:VCARD
                     VERSION:3.0
@@ -189,16 +165,15 @@ class ServiceMobile(http.Controller):
                     TEL;TYPE=WORK,VOICE:{phone}
                     EMAIL;CHARSET=UTF-8;type=WORK,INTERNET:{email}
                     ORG;CHARSET=UTF-8:{company}
-                    URL;CHARSET=UTF-8:http://localhost:8069/kimvvs.se/{id}
-                    REV:2019-09-13T09:26:53.011Z
+                    URL;CHARSET=UTF-8:'http://localhost:8069/kimvvs.se/{id}
+                    REV:2019-11-02T09:26:53.011Z
                     END:VCARD""".format(
             name=partner.name,
-            title=partner.function,
+            title=_title,
             phone=partner.phone,
             email=partner.email,
-            company=_company,
+            company=_company_name,
             id=partner.id)
-
         return Response(result, mimetype='text/vcard')
 
     # Show order detail and update order

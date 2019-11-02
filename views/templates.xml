@@ -711,6 +711,15 @@
                 </div>
             </t>
         </template>
+        <!--tenta-->
+        <template id="haha">
+
+            <p>
+                <t t-esc="haha"/>
+            </p>
+            <p>hahah2</p>
+        </template>
+        <!--tenta end-->
 
         <!--tenta-->
         <template id="partner_vcard_view" name="Partner vCard">
@@ -719,120 +728,294 @@
                   crossorigin="anonymous"/>
             <link rel="stylesheet"
                   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
-            <p>
-               id: <t t-esc="partner.id"></t>
-            </p>
-            <p>
-                company name:<t t-esc="partner.company_name"></t>
-            </p>
-            <p>
-                address:<t t-esc="partner.contact_address"></t>
-            </p>
-            <p>
-                parent_id:<t t-esc="partner.parent_id"></t>
-            </p>
-            <p>
-                parent_id.display_name:<t t-esc="partner.parent_id.display_name"></t>
-            </p>
-            <p>
-                partner name:<t t-esc="partner.name"></t>
-            </p>
-            <p>function:
-                <t t-esc="partner.function"></t>
-            </p>
-            <!--        <p>function: <t t-esc="partner.function"></t></p>-->
-            <p>title1:
-                <t t-esc="partner.title"></t>
-            </p>
-            <!--        <p>title2:<t t-esc="title"></t></p>-->
-            <p>
-               phone: <t t-esc="partner.phone"></t>
-            </p>
-            <p>
-               email: <t t-esc="partner.email"></t>
-            </p>
-            <p>hahah</p>
+<!--            <p>-->
+<!--                id:-->
+<!--                <t t-esc="partner.id"/>-->
+<!--            </p>-->
+<!--            <p>-->
+<!--                company name:-->
+<!--                <t t-esc="partner.company_name"/>-->
+<!--            </p>-->
+<!--            <p>-->
+<!--                address:-->
+<!--                <t t-esc="partner.contact_address"/>-->
+<!--            </p>-->
+<!--            <p>-->
+<!--                parent_id:-->
+<!--                <t t-esc="partner.parent_id"/>-->
+<!--            </p>-->
+<!--            <p>-->
+<!--                parent_id.display_name:-->
+<!--                <t t-esc="partner.parent_id.display_name"/>-->
+<!--            </p>-->
+<!--            <p>-->
+<!--                partner name:-->
+<!--                <t t-esc="partner.name"/>-->
+<!--            </p>-->
+<!--            <p>function:-->
+<!--                <t t-esc="partner.function"/>-->
+<!--            </p>-->
+<!--            <p>title1:-->
+<!--                <t t-esc="partner.title"/>-->
+<!--            </p>-->
+<!--            <p>-->
+<!--                phone:-->
+<!--                <t t-esc="partner.phone"/>-->
+<!--            </p>-->
+<!--            <p>-->
+<!--                email:-->
+<!--                <t t-esc="partner.email"/>-->
+<!--            </p>-->
+<!--            <p>hahah</p>-->
 
             <div class="container text-center py-4 my-4" style="min-width:350px;max-width:100%">
                 <div class="row">
                     <div class="col-12 col-md-12 col-lg-12">
                         <div class="" stype="">
                             <figure>
-                                <!--                                <img t-attf-src="image_data_uri(partner.image.datas)" class="img-fluid" style="width:100%;height:150px"/>-->
-                                <img t-attf-src="data:image/jpg;base64, {{partner.image}}" class="img-fluid"
-                                     style="width:150px;height:150px;border-radius:50%;"/>
+                                <img t-if="partner" t-attf-src="data:image/jpg;base64, {{partner.image}}" class="img-fluid" style="width:150px;height:150px;border-radius:50%;"/>
+                                <img t-else="" t-attf-src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png" class="img-fluid" style="width:150px;height:150px;border-radius:50%;background:gray"/>
                             </figure>
-                            <h3>
-                                <t t-if="partner.name" t-esc="partner.name"></t>
+                            <h3 style="height:50px">
+                                <t t-if="partner and partner.name" t-esc="partner.name"/>
+                                <t t-else="">Blank Contact</t>
                             </h3>
-                            <div style="height:20px">
-                            <p style="color:gray">
-                                <t t-if="partner.function" t-esc="partner.function"></t>
-                                <t t-else="">No Title</t>
-                            </p>
+                            <div t-if="partner" style="height:20px">
+                                <p style="color:gray">
+                                    <t t-if="partner.function" t-esc="partner.function"/>
+                                    <t t-else="">No Title</t>
+                                </p>
+                            </div>
+                            <div t-else="" style="height:20px">
+                                <p style="color:gray">
+                                    <t>Blank Title</t>
+                                </p>
                             </div>
                             <br/>
-                            <div class="row py-3 mb-1">
+                            <div class="row py-4 mb-5">
                                 <div class="col-12 col-md-12 col-xs-12">
                                     <div class="row">
-                                         <div class="col-4 col-md-4 col-xs-4"></div>
+                                        <div class="col-4 col-md-4 col-xs-4"/>
                                         <div class="col-2 col-md-2 col-xs-2">
-                                            <a t-att-href="'tel:%s' % partner.phone">
+
+                                            <a t-if="partner and partner.phone" t-att-href="'tel:%s' % partner.phone">
                                                 <i class="fa fa-phone"
-                                                   style="display:inline-block;border-radius:60px;
-                                         box-shadow: 0px 0px 2px royalblue;padding:0.5em 0.6em;
-                                         color:white;background:royalblue;font-size:20px;"/>
+                                                   style="display:inline-block;border-radius:60px;box-shadow: 0px 0px 2px orange;padding:0.5em 0.6em; color:white;background:orange;font-size:20px;"/>
                                                 <p style="color:gray">Ring</p>
                                             </a>
+
+                                            <a t-else="">
+                                                <i class="fa fa-phone"
+                                                   style="display:inline-block;border-radius:60px; box-shadow: 0px 0px 2px gray;padding:0.5em 0.6em; color:white;background:gray;font-size:20px;"/>
+                                                <p style="color:gray">Ring</p>
+                                            </a>
+
                                         </div>
                                         <div class="col-2 col-md-2 col-xs-2">
-                                            <a t-att-href="'mailto:%s' % partner.email">
+                                            <a t-if="partner and partner.email"
+                                               t-att-href="'mailto:%s' % partner.email">
                                                 <i class="fa fa-envelope"
-                                                   style="display:inline-block;border-radius:60px;
-                                         box-shadow: 0px 0px 2px royalblue;padding:0.5em 0.6em;
-                                         color:white;background:royalblue;font-size:20px;"/>
+                                                   style="display:inline-block;border-radius:60px;box-shadow: 0px 0px 2px orange;padding:0.5em 0.6em; color:white;background:orange;font-size:20px;"/>
+                                                <p style="color:gray">Epost</p>
+                                            </a>
+                                            <a t-else="">
+                                                <i class="fa fa-envelope"
+                                                   style="display:inline-block;border-radius:60px;box-shadow: 0px 0px 2px gray;padding:0.5em 0.6em; color:white;background:gray;font-size:20px;"/>
                                                 <p style="color:gray">Epost</p>
                                             </a>
                                         </div>
-                                         <div class="col-4 col-md-4 col-xs-4"></div>
+                                        <div class="col-4 col-md-4 col-xs-4"/>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="row">
-                                <div class="col-6 col-md-6 col-xs-6"
-                                     style="display:inline-block; background:royalblue;color:white;
-                                             border:1px solid white;height:60px;padding-top:15px">
+                                <div t-if="partner" class="col-6 col-md-6 col-xs-6" style="display:inline-block; background:orange;color:white; border:1px solid white;height:60px;padding-top:15px">
                                     <a href="#">
-                                        <i class="fa fa-share-alt"
-                                           style="display:inline-block; color:white;font-size:20px;"/>
+                                        <i class="fa fa-share-alt" style="display:inline-block; color:white;font-size:20px;"/>
                                     </a>
                                     <p>Dela</p>
                                 </div>
-                                <div class="col-6 col-md-6 col-xs-6"
-                                     style="display:inline-block;background:royalblue;color:white;
+                                <div t-else="" class="col-6 col-md-6 col-xs-6"
+                                     style="display:inline-block; background:gray;color:white; border:1px solid white;height:60px;padding-top:15px">
+                                    <a>
+                                        <i class="fa fa-share-alt" style="display:inline-block; color:white;font-size:20px;"/>
+                                    </a>
+                                    <p>Dela</p>
+                                </div>
+                                <div t-if="partner" class="col-6 col-md-6 col-xs-6" style="display:inline-block;background:orange;color:white;
                                         border:1px solid white;;height:60px;padding-top:15px">
                                     <a t-att-href="'/kimvvs.se/%s/send/vcard.vcf' % partner.id">
-                                        <i class="fa fa-download"
-                                           style="display:inline-block; color:white;font-size:20px;"/>
+                                        <i class="fa fa-download" style="display:inline-block; color:white;font-size:20px;"/>
                                     </a>
                                     <p>Lägg till kontaktbok</p>
 
-<!--                                    <t t-if="order.state != 'cancel'">-->
-<!--                                            <a t-att-href="'/service/%s/order/delete' % order.id">-->
-<!--                                                <i class="fa fa-trash"/>-->
-<!--                                            </a>-->
-<!--                                        </t>-->
-
+                                </div>
+                                <div t-else="" class="col-6 col-md-6 col-xs-6" style="display:inline-block;background:gray;color:white;
+                                        border:1px solid white;;height:60px;padding-top:15px">
+                                    <a>
+                                        <i class="fa fa-download" style="display:inline-block; color:white;font-size:20px;"/>
+                                    </a>
+                                    <p>Lägg till kontaktbok</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+
         </template>
         <!--tenta end-->
 
+        <!--tenta-->
+                <template id="invalid_page" name="invalid page">
+                    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+                          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+                          crossorigin="anonymous"/>
+                    <link rel="stylesheet"
+                          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+                    <p>
+                       id: <t t-esc="partner.id"></t>
+                    </p>
+                    <p>
+                        company name:<t t-esc="partner.company_name"></t>
+                    </p>
+                    <p>
+                        address:<t t-esc="partner.contact_address"></t>
+                    </p>
+                    <p>
+                        parent_id:<t t-esc="partner.parent_id"></t>
+                    </p>
+                    <p>
+                        parent_id.display_name:<t t-esc="partner.parent_id.display_name"></t>
+                    </p>
+                    <p>
+                        partner name:<t t-esc="partner.name"></t>
+                    </p>
+                    <p>function:
+                        <t t-esc="partner.function"></t>
+                    </p>
+                    <p>title1:
+                        <t t-esc="partner.title"></t>
+                    </p>
+                    <p>
+                       phone: <t t-esc="partner.phone"></t>
+                    </p>
+                    <p>
+                       email: <t t-esc="partner.email"></t>
+                    </p>
+                    <p>invalid</p>
+
+                    <div class="container text-center py-4 my-4" style="min-width:350px;max-width:100%;color:gray;">
+                        <div class="row">
+                            <div class="col-12 col-md-12 col-lg-12">
+                                <div class="" stype="">
+                                    <figure>
+                                        <!--                                <img t-attf-src="image_data_uri(partner.image.datas)" class="img-fluid" style="width:100%;height:150px"/>-->
+        <!--                                <img t-if="partner.image" t-attf-src="data:image/jpg;base64, {{partner.image}}" class="img-fluid"-->
+        <!--                                     style="width:150px;height:150px;border-radius:50%;"/>-->
+                                        <img t-attf-src="https://cdn1.vectorstock.com/i/1000x1000/77/30/default-avatar-profile-icon-grey-photo-placeholder-vector-17317730.jpg" class="img-fluid"
+                                             style="width:150px;height:150px;border-radius:50%;"/>
+                                    </figure>
+                                    <h3 style="height:40px">
+        <!--                                <t t-if="partner.name" t-esc="partner.name"></t>-->
+                                        <t>Blank Contact</t>
+                                    </h3>
+                                    <div style="height:20px">
+                                    <p>
+        <!--                                <t t-if="partner.function" t-esc="partner.function"></t>-->
+                                        <t>Blank Title</t>
+                                    </p>
+                                    </div>
+                                    <br/>
+                                    <div class="row py-3 mb-1">
+                                        <div class="col-12 col-md-12 col-xs-12">
+                                            <div class="row">
+                                                 <div class="col-4 col-md-4 col-xs-4"></div>
+                                                <div class="col-2 col-md-2 col-xs-2">
+        <!--                                            <a t-if="partner.phone" t-att-href="'tel:%s' % partner.phone">-->
+        <!--                                                <i class="fa fa-phone"-->
+        <!--                                                   style="display:inline-block;border-radius:60px;-->
+        <!--                                         box-shadow: 0px 0px 2px royalblue;padding:0.5em 0.6em;-->
+        <!--                                         color:white;background:royalblue;font-size:20px;"/>-->
+        <!--                                                <p style="color:gray">Ring</p>-->
+        <!--                                            </a>-->
+                                                    <a>
+                                                        <i class="fa fa-phone"
+                                                           style="display:inline-block;border-radius:60px;
+                                                 box-shadow: 0px 0px 2px royalblue;padding:0.5em 0.6em;
+                                                 color:white;background:gray;font-size:20px;"/>
+                                                        <p style="color:gray">Ring</p>
+                                                    </a>
+                                                </div>
+                                                <div class="col-2 col-md-2 col-xs-2">
+        <!--                                            <a t-att-href="'mailto:%s' % partner.email">-->
+        <!--                                                <i class="fa fa-envelope"-->
+        <!--                                                   style="display:inline-block;border-radius:60px;-->
+        <!--                                         box-shadow: 0px 0px 2px royalblue;padding:0.5em 0.6em;-->
+        <!--                                         color:white;background:royalblue;font-size:20px;"/>-->
+        <!--                                                <p style="color:gray">Epost</p>-->
+        <!--                                            </a>-->
+                                                    <a>
+                                                        <i class="fa fa-envelope"
+                                                           style="display:inline-block;border-radius:60px;
+                                                 box-shadow: 0px 0px 2px royalblue;padding:0.5em 0.6em;
+                                                 color:white;background:gray;font-size:20px;"/>
+                                                        <p style="color:gray">Epost</p>
+                                                    </a>
+                                                </div>
+                                                 <div class="col-4 col-md-4 col-xs-4"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+        <!--                                <div t-if="partner" class="col-6 col-md-6 col-xs-6"-->
+        <!--                                     style="display:inline-block; background:royalblue;color:white;-->
+        <!--                                             border:1px solid white;height:60px;padding-top:15px">-->
+        <!--                                    <a href="#">-->
+        <!--                                        <i class="fa fa-share-alt"-->
+        <!--                                           style="display:inline-block; color:white;font-size:20px;"/>-->
+        <!--                                    </a>-->
+        <!--                                    <p>Dela</p>-->
+        <!--                                </div>-->
+                                        <div class="col-6 col-md-6 col-xs-6"
+                                             style="display:inline-block; background:gray;color:white;
+                                                     border:1px solid white;height:60px;padding-top:15px">
+                                            <a>
+                                                <i class="fa fa-share-alt"
+                                                   style="display:inline-block; color:white;font-size:20px;"/>
+                                            </a>
+                                            <p>Dela</p>
+                                        </div>
+        <!--                                <div t-if="partner" class="col-6 col-md-6 col-xs-6"-->
+        <!--                                     style="display:inline-block;background:royalblue;color:white;-->
+        <!--                                        border:1px solid white;;height:60px;padding-top:15px">-->
+        <!--                                    <a t-att-href="'/kimvvs.se/%s/send/vcard.vcf' % partner.id">-->
+        <!--                                        <i class="fa fa-download"-->
+        <!--                                           style="display:inline-block; color:white;font-size:20px;"/>-->
+        <!--                                    </a>-->
+        <!--                                    <p>Lägg till kontaktbok</p>-->
+        <!--                                </div>-->
+                                        <div class="col-6 col-md-6 col-xs-6"
+                                             style="display:inline-block;background:gray;color:white;
+                                                border:1px solid white;;height:60px;padding-top:15px">
+                                            <a>
+                                                <i class="fa fa-download"
+                                                   style="display:inline-block; color:white;font-size:20px;"/>
+                                            </a>
+                                            <p>Lägg till kontaktbok</p>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </template>
+        <!--tenta end-->
 
         <!-- Show order detail and update order-->
         <template id="view_order">
